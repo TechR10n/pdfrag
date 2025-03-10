@@ -126,7 +126,7 @@ touch docker-compose.yml
 7. Add the following configuration to `docker-compose.yml`:
 
 ```yaml
-version: '3.8'
+# docker-compose.yml - Updated to avoid port 5000 conflict
 
 services:
   vector-db:
@@ -139,11 +139,17 @@ services:
     environment:
       - QDRANT_ALLOW_CORS=true
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   mlflow:
     image: ghcr.io/mlflow/mlflow:latest
     ports:
-      - "5000:5000"
+      - "5001:5000"  # External port 5001 mapped to container's 5000
     volumes:
       - ./mlflow/artifacts:/mlflow/artifacts
       - ./mlflow/backend:/mlflow/backend
@@ -152,6 +158,46 @@ services:
       - MLFLOW_DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
     command: mlflow server --backend-store-uri sqlite:///mlflow/backend/mlflow.db --default-artifact-root /mlflow/artifacts --host 0.0.0.0 --port 5000
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  flask-app:
+    build:
+      context: ./flask-app
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./flask-app:/app
+      - ./data:/data
+      - ./app:/rag_app
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_DEBUG=1
+      - PYTHONPATH=/app:/rag_app
+      - MLFLOW_HOST=mlflow  # Use service name for Docker networking
+      - MLFLOW_PORT=5001    # External port for client connections
+    depends_on:
+      vector-db:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mlflow-data:
+    driver: local
+  vector-data:
+    driver: local
+
+networks:
+  default:
+    driver: bridge
+    name: rag-network
 ```
 
 8. Start the containers to verify the setup:
@@ -212,7 +258,7 @@ RERANKER_MODEL_PATH = os.path.join(BASE_DIR, "models", "reranker", "ms-marco-Min
 LLM_MODEL_PATH = os.path.join(BASE_DIR, "models", "llm", "llama-2-7b-chat-q4_0.gguf")
 
 # MLflow settings
-MLFLOW_TRACKING_URI = "http://localhost:5000"
+MLFLOW_TRACKING_URI = "http://localhost:5001"
 MLFLOW_MODEL_NAME = "rag_model"
 
 # Flask settings
@@ -304,10 +350,17 @@ LLM_DIR="models/llm"
 mkdir -p $LLM_DIR
 
 # URL for Llama-2-7B-Chat quantized model
-MODEL_URL="https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7b-chat.Q4_0.gguf"
-OUTPUT_PATH="$LLM_DIR/llama-2-7b-chat-q4_0.gguf"
+#!/bin/bash
 
-echo "Downloading LLM model to $OUTPUT_PATH..."
+# Directory for LLM model
+LLM_DIR="models/llm"
+mkdir -p $LLM_DIR
+
+# URL for Llama-3-8B-Instruct quantized model (latest as of now)
+MODEL_URL="https://huggingface.co/TheBloke/Llama-3-8B-Instruct-GGUF/resolve/main/llama-3-8b-instruct.Q4_K_M.gguf"
+OUTPUT_PATH="$LLM_DIR/llama-3-8b-instruct-q4.gguf"
+
+echo "Downloading Llama 3 model to $OUTPUT_PATH..."
 echo "This may take some time depending on your internet connection."
 
 # Download with curl, showing progress
@@ -317,11 +370,144 @@ echo "Download complete. Verifying file..."
 
 # Check if file exists and has content
 if [ -f "$OUTPUT_PATH" ] && [ -s "$OUTPUT_PATH" ]; then
-    echo "LLM model downloaded successfully."
+    echo "Llama 3 model downloaded successfully."
 else
-    echo "Error: LLM model download failed or file is empty."
+    echo "Error: Llama 3 model download failed or file is empty."
     exit 1
 fi
+```
+
+7.5 Alternative using Meta's Llama-3.2-3B-Instruct model:
+```bash
+./app/scripts/download_llm.sh
+#!/bin/bash
+
+# Directory for LLM model
+LLM_DIR="models/llm"
+mkdir -p $LLM_DIR
+
+# Prompt for Hugging Face token
+if [ -z "$HF_TOKEN" ]; then
+  echo "Please enter your Hugging Face token (from https://huggingface.co/settings/tokens):"
+  read -s HF_TOKEN
+  echo
+fi
+
+# Download using huggingface-cli
+echo "Installing huggingface_hub if needed..."
+pip install -q huggingface_hub
+
+echo "Downloading Llama-3.2-3B-Instruct model..."
+echo "This will take some time depending on your connection."
+
+python -c "
+from huggingface_hub import snapshot_download
+import os
+
+# Set token
+os.environ['HF_TOKEN'] = '$HF_TOKEN'
+
+# Download model files
+model_path = snapshot_download(
+    repo_id='meta-llama/Llama-3.2-3B-Instruct',
+    local_dir='$LLM_DIR/Llama-3.2-3B-Instruct',
+    local_dir_use_symlinks=False
+)
+
+print(f'Model downloaded to {model_path}')
+"
+
+# Update settings.py to use this model
+SETTINGS_PATH="app/config/settings.py"
+if [ -f "$SETTINGS_PATH" ]; then
+    if grep -q "LLM_MODEL_PATH" "$SETTINGS_PATH"; then
+        sed -i '' 's|LLM_MODEL_PATH = .*|LLM_MODEL_PATH = os.path.join(BASE_DIR, "models", "llm", "Llama-3.2-3B-Instruct")|' "$SETTINGS_PATH"
+        echo "Updated settings.py to use the Llama-3.2-3B-Instruct model."
+    fi
+fi
+
+echo "Now installing transformers to use with Meta's model format..."
+pip install -q transformers accelerate
+
+# Create a model loader adapter
+mkdir -p app/utils/adapters
+cat > app/utils/adapters/meta_llama_adapter.py << 'EOF'
+import os
+import logging
+from typing import Dict, Any, List
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+
+logger = logging.getLogger(__name__)
+
+class MetaLlamaAdapter:
+    def __init__(self, model_path: str, max_new_tokens: int = 512):
+        """Initialize the Meta Llama adapter."""
+        logger.info(f"Loading Meta Llama model from {model_path}")
+        self.model_path = model_path
+        self.max_new_tokens = max_new_tokens
+        
+        # Load model and tokenizer
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_path, 
+            device_map="auto",
+            torch_dtype="auto",
+            low_cpu_mem_usage=True
+        )
+        
+        # Create pipeline
+        self.pipe = pipeline(
+            "text-generation",
+            model=self.model,
+            tokenizer=self.tokenizer
+        )
+        
+        logger.info("Meta Llama model loaded successfully")
+    
+    def __call__(self, prompt: str, **kwargs):
+        """Generate text using the Meta Llama model."""
+        generation_kwargs = {
+            "max_new_tokens": kwargs.get("max_tokens", self.max_new_tokens),
+            "temperature": kwargs.get("temperature", 0.2),
+            "top_p": kwargs.get("top_p", 0.9),
+            "do_sample": kwargs.get("temperature", 0.2) > 0,
+        }
+        
+        # Generate text
+        outputs = self.pipe(
+            prompt,
+            **generation_kwargs
+        )
+        
+        # Format to match llama-cpp-python output format
+        generated_text = outputs[0]["generated_text"][len(prompt):]
+        
+        # Count tokens
+        input_tokens = len(self.tokenizer.encode(prompt))
+        output_tokens = len(self.tokenizer.encode(generated_text))
+        
+        return {
+            "choices": [
+                {
+                    "text": generated_text,
+                    "finish_reason": "length" if output_tokens >= generation_kwargs["max_new_tokens"] else "stop",
+                }
+            ],
+            "usage": {
+                "prompt_tokens": input_tokens,
+                "completion_tokens": output_tokens,
+                "total_tokens": input_tokens + output_tokens,
+            },
+        }
+EOF
+
+# Update llm.py to use the Meta Llama adapter
+sed -i '' 's/from llama_cpp import Llama/from llama_cpp import Llama\nfrom app.utils.adapters.meta_llama_adapter import MetaLlamaAdapter/' app/utils/llm.py
+
+# Update the LLMProcessor.__init__ method
+sed -i '' 's/self.model = Llama(/# Check if using Meta Llama model\n        if "Llama-3" in model_path and os.path.isdir(model_path):\n            self.model = MetaLlamaAdapter(\n                model_path=model_path,\n                max_new_tokens=max_tokens\n            )\n        else:\n            # Use llama-cpp for GGUF models\n            self.model = Llama(/' app/utils/llm.py
+
+echo "Setup complete for using meta-llama/Llama-3.2-3B-Instruct"
 ```
 
 8. Run the script to download the LLM model:
@@ -1693,36 +1879,43 @@ class LLMProcessor:
         self.max_tokens = max_tokens
         logger.info("LLM loaded")
     
-    def create_prompt(self, query: str, context: List[Dict[str, Any]]) -> str:
-        """
-        Create a prompt for the LLM.
+def create_prompt(self, query: str, context: List[Dict[str, Any]]) -> str:
+    """
+    Create a prompt for the LLM.
+    
+    Args:
+        query: User query
+        context: List of context documents
         
-        Args:
-            query: User query
-            context: List of context documents
-            
-        Returns:
-            Formatted prompt
-        """
-        # Format context
-        context_text = ""
-        for i, doc in enumerate(context):
-            context_text += f"Document {i+1}:\n{doc['chunk_text']}\n\n"
-        
-        # Create prompt
-        prompt = f"""You are a helpful AI assistant that provides accurate and concise answers based on the provided context documents. 
+    Returns:
+        Formatted prompt
+    """
+    # Format context
+    context_text = ""
+    for i, doc in enumerate(context):
+        context_text += f"Document {i+1}:\n{doc['chunk_text']}\n\n"
+    
+    # Create prompt for Llama 3
+    prompt = f"""<|system|>
+You are a helpful AI assistant that provides accurate and concise answers based on the provided context documents. 
 If the answer is not contained in the documents, say "I don't have enough information to answer this question."
 Do not make up or hallucinate any information that is not supported by the documents.
+</|system|>
 
-Context documents:
+<|user|>
+I need information about the following topic:
+
+{query}
+
+Here are relevant documents to help answer this question:
+
 {context_text}
+</|user|>
 
-User query: {query}
-
-Answer:
+<|assistant|>
 """
-        return prompt
-    
+    return prompt
+        
     def generate_response(self, prompt: str) -> Dict[str, Any]:
         """
         Generate a response from the LLM.
@@ -3027,7 +3220,7 @@ sleep 5
 
 # Check if MLflow is running
 echo "Checking MLflow service..."
-if curl -s http://localhost:5000/ping > /dev/null; then
+if curl -s http://localhost:5001/ping > /dev/null; then
     echo -e "${GREEN}MLflow service is running.${NC}"
 else
     echo -e "${RED}MLflow service is not running. Check Docker logs.${NC}"
@@ -3214,7 +3407,7 @@ def check_service_availability():
     """Check if all services are available."""
     services = {
         "Flask Web App": f"{FLASK_BASE_URL}/api/health",
-        "MLflow": f"http://localhost:5000/ping",
+        "MLflow": f"http://localhost:5001/ping",
         "Vector DB": f"http://localhost:6333/health",
     }
     
@@ -3388,7 +3581,7 @@ def check_system_status():
     print(f"\n{Colors.BOLD}Service Endpoints:{Colors.ENDC}")
     endpoints = [
         ("http://localhost:6333/health", "Vector DB API"),
-        ("http://localhost:5000/ping", "MLflow API"),
+        ("http://localhost:5001/ping", "MLflow API"),
         ("http://localhost:8000/api/health", "Flask API"),
     ]
     
@@ -3719,7 +3912,7 @@ else
 fi
 
 echo "Testing MLflow..."
-if curl -s http://localhost:5000/ping > /dev/null; then
+if curl -s http://localhost:5001/ping > /dev/null; then
     echo -e "${GREEN}MLflow is responding in offline mode.${NC}"
 else
     echo -e "${RED}MLflow is not responding!${NC}"

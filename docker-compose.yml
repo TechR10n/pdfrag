@@ -1,4 +1,4 @@
-version: '3.8'
+# docker-compose.yml - Updated to avoid port 5000 conflict
 
 services:
   vector-db:
@@ -11,11 +11,17 @@ services:
     environment:
       - QDRANT_ALLOW_CORS=true
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   mlflow:
     image: ghcr.io/mlflow/mlflow:latest
     ports:
-      - "5000:5000"
+      - "5001:5000"  # External port 5001 mapped to container's 5000
     volumes:
       - ./mlflow/artifacts:/mlflow/artifacts
       - ./mlflow/backend:/mlflow/backend
@@ -24,3 +30,43 @@ services:
       - MLFLOW_DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
     command: mlflow server --backend-store-uri sqlite:///mlflow/backend/mlflow.db --default-artifact-root /mlflow/artifacts --host 0.0.0.0 --port 5000
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  flask-app:
+    build:
+      context: ./flask-app
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./flask-app:/app
+      - ./data:/data
+      - ./app:/rag_app
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_DEBUG=1
+      - PYTHONPATH=/app:/rag_app
+      - MLFLOW_HOST=mlflow  # Use service name for Docker networking
+      - MLFLOW_PORT=5001    # External port for client connections
+    depends_on:
+      vector-db:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mlflow-data:
+    driver: local
+  vector-data:
+    driver: local
+
+networks:
+  default:
+    driver: bridge
+    name: rag-network

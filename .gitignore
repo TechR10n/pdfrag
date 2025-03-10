@@ -122,3 +122,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# LLM models
+models/llm/
+
+# macOS system files
+.DS_Store
