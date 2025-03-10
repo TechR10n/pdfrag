@@ -56,54 +56,63 @@ touch requirements.txt
 
 ```
 # Core Libraries
-pandas==2.2.0
-numpy==1.26.3
-scikit-learn==1.3.2
+pandas==2.2.1
+numpy==1.26.4
+scikit-learn==1.6.1  # Updated to latest available for Python 3.12 on macOS ARM64
 
 # PDF Processing
-pymupdf==1.23.7
-tqdm==4.66.1
+pymupdf==1.24.5
+pdfminer.six==20231228
+tqdm==4.66.4
 
-# Embedding & ML
-sentence-transformers==2.2.2
-transformers==4.36.2
-torch==2.1.2
+# Text Processing
+langchain==0.2.7
+langchain-community==0.2.7
+llama-index==0.10.32
+
+# Embedding Models - updated for Python 3.12
+sentence-transformers==2.6.0
+transformers==4.39.3
+torch==2.6.0
 
 # Vector Database
-qdrant-client==1.7.0
+faiss-cpu==1.8.0
+qdrant-client==1.8.0
+chromadb==0.4.22
 
-# LLM Inference
-llama-cpp-python==0.2.25
-
-# LangChain
-langchain==0.1.16
-langchain-community==0.0.13
+# LLM Inference - optimized for Apple Silicon
+llama-cpp-python==0.2.49
 
 # MLflow
-mlflow==2.12.1
-protobuf==4.25.1
+mlflow==2.12.2
+protobuf==4.25.3
 alembic==1.13.1
-sqlalchemy==2.0.26
+sqlalchemy==2.0.28
 
-# Flask
+# Flask Web UI
 flask==2.3.3
 flask-wtf==1.2.1
 werkzeug==2.3.7
-jinja2==3.1.2
+jinja2==3.1.3
+itsdangerous==2.1.2
 
-# Testing
-pytest==7.4.3
+# API & Testing
 requests==2.31.0
+pytest==7.4.4
+locust==2.20.1
 
 # Utilities
-python-dotenv==1.0.0
+python-dotenv==1.0.1
 click==8.1.7
 ```
 
 5. Install the dependencies:
 
 ```bash
-pip install -r requirements.txt
+pip install --upgrade pip wheel setuptools
+pip uninstall -y llama-cpp-python
+CMAKE_ARGS="-DLLAMA_METAL=on" pip install llama-cpp-python==0.2.49
+pip install --prefer-binary -r requirements.txt
 ```
 
 **Professor's Hint:** _When working with ML libraries on Apple Silicon, use native ARM packages where possible. The torch package specified here is compiled for M-series chips. For libraries without native ARM support, Rosetta 2 will handle the translation, but with a performance penalty._
