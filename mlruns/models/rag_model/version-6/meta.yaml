@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1741714135594
+current_stage: None
+description: null
+last_updated_timestamp: 1741714135594
+name: rag_model
+run_id: b265c8e56b924b91ae80e21b80633f30
+run_link: null
+source: file:///Users/ryan/Developer/pdfrag/mlruns/0/b265c8e56b924b91ae80e21b80633f30/artifacts/model
+status: READY
+status_message: null
+storage_location: file:///Users/ryan/Developer/pdfrag/mlruns/0/b265c8e56b924b91ae80e21b80633f30/artifacts/model
+user_id: null
+version: 6

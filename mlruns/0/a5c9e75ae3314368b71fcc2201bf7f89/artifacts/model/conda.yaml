@@ -1,0 +1,14 @@
+channels:
+- conda-forge
+dependencies:
+- python=3.12.9
+- pip<=25.0.1
+- pip:
+  - pandas
+  - numpy
+  - scikit-learn
+  - sentence-transformers
+  - qdrant-client
+  - llama-cpp-python
+  - mlflow
+name: mlflow-env

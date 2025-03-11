@@ -20,5 +20,8 @@ Submodules
    app.utils.embedding_generation
    app.utils.llm
    app.utils.pdf_ingestion
+   app.utils.query_processing
+   app.utils.reranking
+   app.utils.search
    app.utils.text_chunking
    app.utils.vector_db

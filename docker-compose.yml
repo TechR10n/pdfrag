@@ -12,56 +12,62 @@ services:
       - QDRANT_ALLOW_CORS=true
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health", "||", "exit", "0"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 30s
 
   mlflow:
     image: ghcr.io/mlflow/mlflow:latest
     ports:
       - "5001:5000"  # External port 5001 mapped to container's 5000
     volumes:
-      - ./mlflow/artifacts:/mlflow/artifacts
-      - ./mlflow/backend:/mlflow/backend
+      - mlflow-docker-data:/mlflow
     environment:
-      - MLFLOW_TRACKING_URI=sqlite:///mlflow/backend/mlflow.db
-      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
-    command: mlflow server --backend-store-uri sqlite:///mlflow/backend/mlflow.db --default-artifact-root /mlflow/artifacts --host 0.0.0.0 --port 5000
+      - MLFLOW_TRACKING_URI=sqlite:///mlflow/mlflow.db
+    command: >
+      /bin/sh -c "
+      mkdir -p /mlflow/artifacts && 
+      chmod -R 777 /mlflow && 
+      mlflow server 
+      --backend-store-uri sqlite:///mlflow/mlflow.db 
+      --default-artifact-root /mlflow/artifacts 
+      --host 0.0.0.0 
+      --port 5000"
+    user: root
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/ping"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/2.0/mlflow/experiments/list", "||", "exit", "0"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 30s
 
   flask-app:
     build:
-      context: ./flask-app
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: flask-app/Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - ./flask-app:/app
-      - ./data:/data
-      - ./app:/rag_app
+      - ./data:/flask_app/data
+      - ./app:/flask_app/app
+      - ./models:/flask_app/models
     environment:
       - FLASK_APP=app.py
       - FLASK_DEBUG=1
-      - PYTHONPATH=/app:/rag_app
       - MLFLOW_HOST=mlflow  # Use service name for Docker networking
-      - MLFLOW_PORT=5001    # External port for client connections
+      - MLFLOW_PORT=5000    # Internal port for Docker networking
+      - CMAKE_ARGS=-DLLAMA_CUBLAS=0    # Disable CUDA for llama-cpp-python
+      - FORCE_CMAKE=1                  # Force using CMake for building
     depends_on:
-      vector-db:
-        condition: service_healthy
-      mlflow:
-        condition: service_healthy
+      - vector-db
+      - mlflow
     restart: unless-stopped
 
 volumes:
-  mlflow-data:
+  mlflow-docker-data:
     driver: local
   vector-data:
     driver: local

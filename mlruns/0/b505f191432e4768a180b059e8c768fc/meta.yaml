@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/ryan/Developer/pdfrag/mlruns/0/b505f191432e4768a180b059e8c768fc/artifacts
+end_time: 1741716302963
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: b505f191432e4768a180b059e8c768fc
+run_name: rag_model_deployment
+run_uuid: b505f191432e4768a180b059e8c768fc
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1741716302435
+status: 3
+tags: []
+user_id: ryan

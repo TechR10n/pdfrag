@@ -47,7 +47,7 @@ fi
 # Create data directories if they don't exist
 mkdir -p "$PDF_DIR"
 
-# Start Docker services
+# Start Docker services (including Flask app)
 echo "Starting Docker services..."
 docker-compose up -d
 
@@ -71,6 +71,15 @@ if curl -s http://localhost:6333/health > /dev/null; then
 else
     echo -e "${RED}Vector database service is not running. Check Docker logs.${NC}"
     echo "You can run: docker-compose logs vector-db"
+fi
+
+# Check if Flask app is running
+echo "Checking Flask application..."
+if curl -s http://localhost:8000 > /dev/null; then
+    echo -e "${GREEN}Flask application is running.${NC}"
+else
+    echo -e "${RED}Flask application is not running. Check Docker logs.${NC}"
+    echo "You can run: docker-compose logs flask-app"
 fi
 
 # Check if there are PDFs to process
@@ -103,15 +112,10 @@ else
     python app/scripts/deploy_model.py &
 fi
 
-# Start Flask application
-echo -e "${GREEN}Starting Flask application...${NC}"
-cd flask-app
-FLASK_APP=app.py FLASK_ENV=development python app.py &
-
 echo -e "${GREEN}All services started!${NC}"
 echo "You can access the web interface at: http://localhost:8000"
 echo -e "${YELLOW}Press Ctrl+C to stop all services${NC}"
 
 # Wait for user interrupt
-trap "echo 'Stopping services...'; kill %1; docker-compose down; exit 0" INT
+trap "echo 'Stopping services...'; docker-compose down; exit 0" INT
 wait

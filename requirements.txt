@@ -17,6 +17,7 @@ llama-index==0.10.32
 sentence-transformers==2.6.0
 transformers==4.39.3
 torch==2.6.0
+accelerate==0.27.2  # For loading and optimization of HF models
 
 # Vector Database
 faiss-cpu==1.8.0

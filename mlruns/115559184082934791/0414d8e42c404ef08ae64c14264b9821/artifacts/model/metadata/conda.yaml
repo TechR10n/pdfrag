@@ -1,0 +1,31 @@
+channels:
+- conda-forge
+dependencies:
+- python=3.12.9
+- pip<=25.0
+- pip:
+  - mlflow==2.12.2
+  - accelerate==0.27.2
+  - attrs==25.1.0
+  - brotli==1.1.0
+  - click==8.1.7
+  - cloudpickle==3.1.1
+  - defusedxml==0.7.1
+  - google-auth==2.38.0
+  - googleapis-common-protos==1.69.1
+  - h2==4.2.0
+  - jinja2==3.1.3
+  - llama-cpp-python==0.2.49
+  - numpy==1.26.4
+  - packaging==24.2
+  - pandas==2.2.1
+  - protobuf==4.25.3
+  - python-dotenv==1.0.1
+  - pyyaml==6.0.2
+  - qdrant-client==1.8.0
+  - requests==2.31.0
+  - rich==13.9.4
+  - scikit-learn==1.6.1
+  - scipy==1.15.2
+  - sentence-transformers==2.6.0
+name: mlflow-env

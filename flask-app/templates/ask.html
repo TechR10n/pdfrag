@@ -1,156 +1,320 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}Ask Questions - Local RAG System{% endblock %}
+{% block title %}Ask Questions - PDF RAG System{% endblock %}
+
+{% block head %}
+<style>
+.chat-container {
+    height: calc(100vh - 300px);
+    min-height: 400px;
+}
+
+.chat-messages {
+    height: calc(100% - 100px);
+    overflow-y: auto;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+}
+
+.message {
+    margin-bottom: 1rem;
+    max-width: 80%;
+}
+
+.message.user {
+    margin-left: auto;
+}
+
+.message.assistant {
+    margin-right: auto;
+}
+
+.message .content {
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    position: relative;
+}
+
+.message.user .content {
+    background: #007bff;
+    color: white;
+    border-top-right-radius: 0.2rem;
+}
+
+.message.assistant .content {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-top-left-radius: 0.2rem;
+}
+
+.message .metadata {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+.message.user .metadata {
+    text-align: right;
+}
+
+.sources {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(0,0,0,0.05);
+    border-radius: 0.5rem;
+}
+
+.source-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+}
+
+.chat-input {
+    margin-top: 1rem;
+}
+
+.thinking {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    color: #6c757d;
+}
+
+.thinking .dots {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.thinking .dot {
+    width: 8px;
+    height: 8px;
+    background: #6c757d;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+.thinking .dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.thinking .dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(0.5);
+        opacity: 0.5;
+    }
+}
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="row">
-    <div class="col-md-10 offset-md-1">
-        <h1 class="mb-4">Ask Questions</h1>
-        
-        <div class="card mb-4">
-            <div class="card-body">
-                <form id="question-form">
-                    <div class="mb-3">
-                        <label for="question" class="form-label">Your Question</label>
-                        <textarea class="form-control" id="question" rows="3" placeholder="Enter your question here..." required></textarea>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary" id="submit-btn">
-                            <i class="fas fa-search me-2"></i> Ask Question
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="bi bi-chat-dots"></i> Ask Questions</h2>
+            </div>
+            <div class="card-body chat-container">
+                <div class="chat-messages" id="chat-messages">
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="message {{ message.role }}">
+                            <div class="content">
+                                {{ message.content | safe }}
+                                {% if message.sources %}
+                                <div class="sources">
+                                    <div class="source-header">
+                                        <i class="bi bi-link-45deg"></i> Sources:
+                                    </div>
+                                    {% for source in message.sources %}
+                                    <div class="source-item">
+                                        <i class="bi bi-file-earmark-pdf text-danger"></i>
+                                        <span>{{ source.filename }} (p. {{ source.page }})</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="metadata">
+                                {{ message.timestamp.strftime('%H:%M') }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-chat-dots" style="font-size: 3rem; color: #ccc;"></i>
+                            <h3 class="mt-3">No Messages Yet</h3>
+                            <p class="text-muted">Ask a question about your documents to get started.</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <form id="question-form" class="chat-input">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="question" name="question" 
+                               placeholder="Type your question here..." required>
+                        <button class="btn btn-primary" type="submit" id="submit-btn">
+                            <i class="bi bi-send"></i> Send
                         </button>
                     </div>
                 </form>
             </div>
         </div>
-        
-        <!-- Answer section (initially hidden) -->
-        <div id="answer-container" class="mb-4" style="display: none;">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Answer</h5>
-                </div>
-                <div class="card-body">
-                    <div class="answer-text" id="answer-text">
-                        <!-- Answer will be inserted here -->
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Sources section (initially hidden) -->
-        <div id="sources-container" style="display: none;">
-            <h4>Sources</h4>
-            <div id="sources-list">
-                <!-- Sources will be inserted here -->
-            </div>
-        </div>
-        
-        <!-- Loading spinner (initially hidden) -->
-        <div id="loading-spinner" class="spinner-container" style="display: none;">
-            <div class="text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-2">Processing your question...</p>
-            </div>
-        </div>
-        
-        <!-- Error message (initially hidden) -->
-        <div id="error-message" class="alert alert-danger" style="display: none;">
-            <!-- Error will be inserted here -->
-        </div>
     </div>
 </div>
 
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const questionForm = document.getElementById('question-form');
-        const submitBtn = document.getElementById('submit-btn');
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const answerContainer = document.getElementById('answer-container');
-        const answerText = document.getElementById('answer-text');
-        const sourcesContainer = document.getElementById('sources-container');
-        const sourcesList = document.getElementById('sources-list');
-        const errorMessage = document.getElementById('error-message');
-        
-        questionForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get the question
-            const question = document.getElementById('question').value.trim();
-            if (!question) return;
-            
-            // Show loading spinner
-            loadingSpinner.style.display = 'flex';
-            answerContainer.style.display = 'none';
-            sourcesContainer.style.display = 'none';
-            errorMessage.style.display = 'none';
-            submitBtn.disabled = true;
-            
-            // Send the question to the API
-            fetch('/api/ask', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    question: question
-                }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Hide loading spinner
-                loadingSpinner.style.display = 'none';
-                submitBtn.disabled = false;
-                
-                if (data.error) {
-                    // Show error message
-                    errorMessage.textContent = data.error;
-                    errorMessage.style.display = 'block';
-                    return;
-                }
-                
-                // Show answer
-                answerText.innerHTML = data.text;
-                answerContainer.style.display = 'block';
-                
-                // Show sources if available
-                if (data.sources && data.sources.length > 0) {
-                    // Clear previous sources
-                    sourcesList.innerHTML = '';
-                    
-                    // Add each source
-                    data.sources.forEach((source, index) => {
-                        const sourceElement = document.createElement('div');
-                        sourceElement.className = 'source-item';
-                        sourceElement.innerHTML = `
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="mb-0">
-                                    <i class="fas fa-file-pdf text-danger me-2"></i>
-                                    ${source.filename}
-                                </h6>
-                                <span class="badge bg-primary">Score: ${source.rerank_score.toFixed(2)}</span>
-                            </div>
-                            <div class="source-text">
-                                <p class="mb-0">${source.chunk_text}</p>
-                            </div>
-                        `;
-                        sourcesList.appendChild(sourceElement);
-                    });
-                    
-                    sourcesContainer.style.display = 'block';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                loadingSpinner.style.display = 'none';
-                submitBtn.disabled = false;
-                errorMessage.textContent = 'An error occurred while processing your question. Please try again.';
-                errorMessage.style.display = 'block';
-            });
-        });
-    });
-</script>
+<!-- Thinking Indicator Template -->
+<template id="thinking-template">
+    <div class="message assistant">
+        <div class="content thinking">
+            <span>Thinking</span>
+            <div class="dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Message Template -->
+<template id="message-template">
+    <div class="message">
+        <div class="content"></div>
+        <div class="metadata"></div>
+    </div>
+</template>
 {% endblock %}
+
+{% block scripts %}
+<script>
+const chatMessages = document.getElementById('chat-messages');
+const questionForm = document.getElementById('question-form');
+const questionInput = document.getElementById('question');
+const submitButton = document.getElementById('submit-btn');
+const thinkingTemplate = document.getElementById('thinking-template');
+const messageTemplate = document.getElementById('message-template');
+
+function scrollToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function formatTime(date) {
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+
+function addMessage(content, role, timestamp, sources = null) {
+    const messageEl = messageTemplate.content.cloneNode(true).querySelector('.message');
+    messageEl.classList.add(role);
+    
+    const contentEl = messageEl.querySelector('.content');
+    contentEl.innerHTML = content;
+    
+    if (sources) {
+        const sourcesHtml = `
+            <div class="sources">
+                <div class="source-header">
+                    <i class="bi bi-link-45deg"></i> Sources:
+                </div>
+                ${sources.map(source => `
+                    <div class="source-item">
+                        <i class="bi bi-file-earmark-pdf text-danger"></i>
+                        <span>${source.filename} (p. ${source.page})</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        contentEl.insertAdjacentHTML('beforeend', sourcesHtml);
+    }
+    
+    const metadataEl = messageEl.querySelector('.metadata');
+    metadataEl.textContent = formatTime(timestamp);
+    
+    chatMessages.appendChild(messageEl);
+    scrollToBottom();
+}
+
+function showThinking() {
+    const thinkingEl = thinkingTemplate.content.cloneNode(true);
+    chatMessages.appendChild(thinkingEl);
+    scrollToBottom();
+    return chatMessages.lastElementChild;
+}
+
+questionForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const question = questionInput.value.trim();
+    if (!question) return;
+    
+    // Disable input and button
+    questionInput.disabled = true;
+    submitButton.disabled = true;
+    
+    // Add user message
+    addMessage(question, 'user', new Date());
+    
+    // Show thinking indicator
+    const thinkingEl = showThinking();
+    
+    try {
+        // Send question to server
+        const response = await fetch('/api/ask', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ question }),
+        });
+        
+        const data = await response.json();
+        
+        // Remove thinking indicator
+        thinkingEl.remove();
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        // Add assistant message
+        addMessage(data.answer, 'assistant', new Date(), data.sources);
+        
+    } catch (error) {
+        // Remove thinking indicator
+        thinkingEl.remove();
+        
+        // Add error message
+        addMessage(
+            `<div class="text-danger">
+                <i class="bi bi-exclamation-triangle"></i> 
+                Error: ${error.message || 'Failed to get answer'}
+            </div>`,
+            'assistant',
+            new Date()
+        );
+        
+    } finally {
+        // Clear and enable input
+        questionInput.value = '';
+        questionInput.disabled = false;
+        submitButton.disabled = false;
+        questionInput.focus();
+    }
+});
+
+// Initial scroll to bottom
+scrollToBottom();
+</script>
 {% endblock %}
