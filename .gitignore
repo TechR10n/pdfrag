@@ -149,8 +149,8 @@ docker-compose.override.yml
 data/raw/
 data/processed/
 data/interim/
-data/vectors/
-data/chunks/
+data/vectors/**
+data/chunks/**
 *.csv
 *.xlsx
 *.parquet
