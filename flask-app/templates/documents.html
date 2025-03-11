@@ -53,7 +53,7 @@
                                         </button>
                                         {% if doc.indexed %}
                                         <button type="button" class="btn btn-sm btn-outline-secondary" 
-                                                onclick="window.location.href='{{ url_for('api_reindex_document', filename=doc.filename) }}'; return false;">
+                                                onclick="reindexDocument('{{ doc.filename }}')">
                                             <i class="bi bi-arrow-clockwise"></i>
                                         </button>
                                         {% endif %}
@@ -104,11 +104,45 @@
 
 {% block scripts %}
 <script>
+// Log the number of documents found
+document.addEventListener('DOMContentLoaded', function() {
+    const documents = document.querySelectorAll('tbody tr');
+    console.log(`Found ${documents.length} documents on the page`);
+    
+    // Log each document name
+    documents.forEach((doc, index) => {
+        const filename = doc.querySelector('td:first-child').textContent.trim();
+        console.log(`Document ${index + 1}: ${filename}`);
+    });
+});
+
 function confirmDelete(filename) {
     const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
     const form = document.getElementById('deleteForm');
     form.action = `/documents/${filename}/delete`;
     modal.show();
+}
+
+function reindexDocument(filename) {
+    // Send a POST request to reindex the document
+    fetch('/api/documents/reindex', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filename }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Document reindexing started successfully!');
+        } else {
+            alert(`Error: ${data.error || 'Failed to reindex document'}`);
+        }
+    })
+    .catch(error => {
+        alert(`Error: ${error.message || 'Failed to reindex document'}`);
+    });
 }
 </script>
 {% endblock %}

@@ -59,6 +59,7 @@ class StandaloneRAGModel:
 SECRET_KEY = 'dev-key-for-testing'
 DEBUG = True
 UPLOAD_FOLDER = os.path.join(str(Path(__file__).resolve().parent.parent), 'data', 'pdfs')
+logger.info(f"UPLOAD_FOLDER absolute path: {os.path.abspath(UPLOAD_FOLDER)}")
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB
 ALLOWED_EXTENSIONS = {'pdf'}
 MLFLOW_HOST = os.environ.get('MLFLOW_HOST', 'mlflow')
@@ -217,19 +218,31 @@ def documents():
     """List uploaded documents."""
     # Get list of PDFs in upload folder
     pdfs = []
-    for filename in os.listdir(app.config['UPLOAD_FOLDER']):
-        if allowed_file(filename):
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file_stat = os.stat(file_path)
-            pdfs.append({
-                'filename': filename,
-                'size': file_stat.st_size,
-                'modified': file_stat.st_mtime,
-                'indexed': True  # Assume all documents are indexed for now
-            })
+    logger.info(f"Looking for documents in {app.config['UPLOAD_FOLDER']}")
+    
+    try:
+        files = os.listdir(app.config['UPLOAD_FOLDER'])
+        logger.info(f"Found {len(files)} files in upload folder")
+        
+        for filename in files:
+            if allowed_file(filename):
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file_stat = os.stat(file_path)
+                pdfs.append({
+                    'filename': filename,
+                    'size': file_stat.st_size,
+                    'modified': file_stat.st_mtime,
+                    'indexed': True  # Assume all documents are indexed for now
+                })
+                logger.info(f"Added document: {filename}")
+            else:
+                logger.info(f"Skipped non-PDF file: {filename}")
+    except Exception as e:
+        logger.error(f"Error listing documents: {str(e)}")
     
     # Sort by modified time (newest first)
     pdfs = sorted(pdfs, key=lambda x: x['modified'], reverse=True)
+    logger.info(f"Returning {len(pdfs)} documents")
     
     now = datetime.datetime.now()
     return render_template('documents.html', documents=pdfs, now=now)
@@ -341,15 +354,20 @@ def api_delete_document():
         logger.error(f"Error deleting document: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@app.route('/api/documents/reindex', methods=['POST'])
+@app.route('/api/documents/reindex', methods=['POST', 'GET'])
 def api_reindex_document():
     """API endpoint for reindexing a document."""
-    data = request.get_json()
+    if request.method == 'GET':
+        filename = request.args.get('filename')
+        if not filename:
+            return jsonify({'success': False, 'error': 'Missing filename parameter'}), 400
+    else:  # POST
+        data = request.get_json()
+        if not data or 'filename' not in data:
+            return jsonify({'success': False, 'error': 'Missing filename parameter'}), 400
+        filename = data['filename']
     
-    if not data or 'filename' not in data:
-        return jsonify({'success': False, 'error': 'Missing filename parameter'}), 400
-    
-    filename = secure_filename(data['filename'])
+    filename = secure_filename(filename)
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     
     if not os.path.exists(file_path):
