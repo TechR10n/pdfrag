@@ -182,6 +182,9 @@ This section contains the API reference for the PDF RAG System.
         
         print("Running LaTeX build with timeout protection...")
         
+        # Initialize success variable
+        success = False
+        
         # Run latexpdf with a timeout to prevent hanging
         try:
             # First, try to build the LaTeX files without running pdflatex
@@ -196,6 +199,7 @@ This section contains the API reference for the PDF RAG System.
                 print(f"Running pdflatex on {main_tex_file}...")
                 
                 # Run pdflatex twice to resolve references
+                pdflatex_success = True
                 for i in range(2):
                     try:
                         subprocess.run(
@@ -208,6 +212,11 @@ This section contains the API reference for the PDF RAG System.
                         )
                     except subprocess.TimeoutExpired:
                         print(f"pdflatex run {i+1} timed out. PDF may be incomplete.")
+                        pdflatex_success = False
+                        break
+                    except subprocess.CalledProcessError:
+                        print(f"pdflatex run {i+1} failed. PDF may be incomplete.")
+                        pdflatex_success = False
                         break
                 
                 # Check if PDF was generated
@@ -218,14 +227,18 @@ This section contains the API reference for the PDF RAG System.
                     output_pdf = sphinx_dir / "build/pdfragsystem.pdf"
                     shutil.copy(pdf_files[0], output_pdf)
                     print(f"PDF copied to: {output_pdf}")
+                    success = True
                 else:
                     print("PDF generation failed. Check the LaTeX directory for errors.")
+                    success = False
             else:
                 print("No .tex files found in the LaTeX build directory.")
+                success = False
                 
         except Exception as e:
             print(f"Error during PDF generation: {str(e)}")
             print("Trying alternative approach...")
+            success = False
             
             # Try the direct make latexpdf command as a fallback
             try:
@@ -242,20 +255,26 @@ This section contains the API reference for the PDF RAG System.
                 pdf_path = sphinx_dir / "build/latex/pdfragsystem.pdf"
                 if pdf_path.exists():
                     print(f"PDF documentation built successfully: {pdf_path}")
+                    success = True
                 else:
                     # Try to find the PDF file
                     pdf_files = list(sphinx_dir.glob("build/latex/*.pdf"))
                     if pdf_files:
                         print(f"PDF documentation built successfully: {pdf_files[0]}")
+                        success = True
                     else:
                         print(f"PDF file not found at expected location: {pdf_path}")
                         print("Check the latex directory for the generated PDF.")
+                        success = False
             except subprocess.TimeoutExpired:
                 print("PDF generation timed out after 2 minutes.")
                 print("This could be due to a LaTeX package issue or a complex document.")
                 print("Try running the following command manually:")
                 print(f"cd {sphinx_dir} && make latexpdf")
-                return False
+                success = False
+            except Exception as e:
+                print(f"Error during alternative PDF generation: {str(e)}")
+                success = False
     elif format_type == "markdown":
         # For Markdown, we need a custom target
         success = run_command([make_command, "markdown"], cwd=sphinx_dir)
