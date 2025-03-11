@@ -18,48 +18,26 @@ try:
     from llama_cpp import Llama
     LLAMA_CPP_AVAILABLE = True
 except ImportError:
-    logger.warning("llama-cpp-python not available, will use mock implementation")
     LLAMA_CPP_AVAILABLE = False
+    logger.warning("llama-cpp-python not available, model loading will be limited to transformers")
 
 # Try to import transformers for non-GGUF models
 try:
-    from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
     import torch
+    import transformers
+    from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
-    logger.warning("transformers not available, falling back to llama-cpp or mock")
     TRANSFORMERS_AVAILABLE = False
+    logger.warning("transformers not available, model loading will be limited to llama-cpp")
 
-class MockLLMProcessor:
-    """A mock implementation of LLMProcessor that doesn't require a model file."""
-    
-    def __init__(self):
-        logger.info("Using mock LLM processor for development")
-    
-    def create_prompt(self, query: str, context: List[Dict[str, Any]]) -> str:
-        # Format context
-        context_text = ""
-        for i, doc in enumerate(context):
-            context_text += f"Document {i+1}:\n{doc['chunk_text']}\n\n"
-        
-        # Simple prompt format
-        prompt = f"""Query: {query}
-        
-        Context:
-        {context_text}
-        """
-        return prompt
-    
-    def generate_response(self, prompt: str) -> Dict[str, Any]:
-        # Create a response that matches the format expected by RAGProcessor
-        return {
-            'text': "This is a mock response for development. The actual LLM model is not available.",
-            'metadata': {
-                'tokens_used': len(prompt.split()),
-                'prompt_tokens': len(prompt.split()),
-                'completion_tokens': 20,
-            }
-        }
+# Try to import MetaLlamaAdapter
+try:
+    from app.utils.adapters.meta_llama_adapter import MetaLlamaAdapter
+    META_LLAMA_ADAPTER_AVAILABLE = True
+except ImportError:
+    logger.warning("MetaLlamaAdapter not available")
+    META_LLAMA_ADAPTER_AVAILABLE = False
 
 class TransformersLLMProcessor:
     """LLM processor implementation using HuggingFace Transformers."""
@@ -235,9 +213,55 @@ class LLMProcessor:
             HF_TOKEN
         )
         
-        # Try different implementations based on the model path and available libraries
+        # Default values
+        self.model = None
+        self.use_transformers = False
+        self.use_meta_adapter = False
+        
+        # Check if it's a Llama-3.2 Instruct model (either 1B or 3B)
+        is_llama_3_2_instruct = any(model_name in actual_model_path or model_name in os.path.dirname(actual_model_path) 
+                                   for model_name in ["Llama-3.2-1B-Instruct", "Llama-3.2-3B-Instruct"])
+        
+        if is_llama_3_2_instruct and META_LLAMA_ADAPTER_AVAILABLE and TRANSFORMERS_AVAILABLE:
+            
+            # Determine the actual model directory
+            if os.path.isdir(actual_model_path):
+                model_dir = actual_model_path
+            else:
+                model_dir = os.path.dirname(actual_model_path)
+                # Check for either 1B or 3B model directories
+                for model_name in ["Llama-3.2-1B-Instruct", "Llama-3.2-3B-Instruct"]:
+                    if model_name in os.listdir(model_dir):
+                        model_dir = os.path.join(model_dir, model_name)
+                        break
+            
+            # Get the model name from the directory path
+            model_name = os.path.basename(model_dir)
+            
+            try:
+                logger.info(f"Loading {model_name} with MetaLlamaAdapter from {model_dir}")
+                self.meta_adapter = MetaLlamaAdapter(
+                    model_path=model_dir,
+                    max_new_tokens=max_tokens
+                )
+                self.use_meta_adapter = True
+                logger.info(f"Loaded {model_name} with MetaLlamaAdapter")
+            except Exception as e:
+                logger.error(f"Failed to load {model_name} with MetaLlamaAdapter: {e}")
+                # Fall back to TransformersLLMProcessor
+                try:
+                    self.transformers_processor = TransformersLLMProcessor(
+                        model_path=model_dir,
+                        context_size=context_size,
+                        max_tokens=max_tokens
+                    )
+                    self.use_transformers = True
+                    logger.info(f"Loaded {model_name} with TransformersLLMProcessor as fallback")
+                except Exception as e2:
+                    logger.error(f"Failed to load with TransformersLLMProcessor: {e2}")
+        
         # Case 1: Valid GGUF file and llama-cpp available
-        if (os.path.exists(actual_model_path) and 
+        elif (os.path.exists(actual_model_path) and 
             os.path.getsize(actual_model_path) > 1000000 and  # >1MB is probably valid
             actual_model_path.endswith(".gguf") and
             LLAMA_CPP_AVAILABLE):
@@ -248,24 +272,17 @@ class LLMProcessor:
                     n_ctx=context_size,
                     n_batch=512,  # Adjust based on available RAM
                 )
-                self.use_mock = False
-                self.use_transformers = False
                 logger.info("Loaded GGUF model with llama-cpp")
             except Exception as e:
                 logger.error(f"Failed to load GGUF model with llama-cpp: {e}")
-                self.model = None
-                self.use_mock = True
-                self.use_transformers = False
-                
+        
         # Case 2: Directory with model files and transformers available
         elif (os.path.isdir(os.path.dirname(actual_model_path)) and
               TRANSFORMERS_AVAILABLE):
             
             # Check if there's a directory with model files
             model_dir = os.path.dirname(actual_model_path)
-            if "Llama-3.2-3B-Instruct" in os.listdir(model_dir):
-                model_dir = os.path.join(model_dir, "Llama-3.2-3B-Instruct")
-                
+            
             try:
                 # Use the directory with model files
                 self.transformers_processor = TransformersLLMProcessor(
@@ -273,33 +290,25 @@ class LLMProcessor:
                     context_size=context_size,
                     max_tokens=max_tokens
                 )
-                self.use_mock = False
                 self.use_transformers = True
                 logger.info("Loaded model with Transformers")
             except Exception as e:
                 logger.error(f"Failed to load model with Transformers: {e}")
-                self.model = None
-                self.use_mock = True
-                self.use_transformers = False
         
-        # Case 3: Use mock as fallback
+        # Case 3: No valid model found
         else:
-            logger.warning(f"Model file {actual_model_path} not found or invalid, and no alternative available. Using mock processor.")
-            self.model = None
-            self.use_mock = True
-            self.use_transformers = False
-            
+            logger.error(f"Model file {actual_model_path} not found or invalid, and no alternative available.")
+            # Instead of using a mock, raise an exception
+            raise ValueError(f"Model file {actual_model_path} not found or invalid, and no alternative available. Please ensure the model file exists and is valid.")
+        
         self.max_tokens = max_tokens
     
     def create_prompt(self, query: str, context: List[Dict[str, Any]]) -> str:
         """
         Create a prompt for the LLM.
         """
-        # If using mock, delegate to mock processor
-        if self.use_mock:
-            return MockLLMProcessor().create_prompt(query, context)
         # If using transformers, delegate to transformers processor
-        elif self.use_transformers:
+        if self.use_transformers:
             return self.transformers_processor.create_prompt(query, context)
             
         # Format context
@@ -338,9 +347,21 @@ class LLMProcessor:
         Returns:
             Response from the LLM
         """
-        # If using mock, delegate to mock processor
-        if self.use_mock:
-            return MockLLMProcessor().generate_response(prompt)
+        # If using meta adapter, use it
+        if self.use_meta_adapter:
+            response = self.meta_adapter(prompt, max_tokens=self.max_tokens)
+            # Extract text
+            response_text = response['choices'][0]['text'].strip()
+            # Get metadata
+            metadata = {
+                'tokens_used': response['usage']['total_tokens'],
+                'prompt_tokens': response['usage']['prompt_tokens'],
+                'completion_tokens': response['usage']['completion_tokens'],
+            }
+            return {
+                'text': response_text,
+                'metadata': metadata
+            }
         # If using transformers, delegate to transformers processor
         elif self.use_transformers:
             return self.transformers_processor.generate_response(prompt)

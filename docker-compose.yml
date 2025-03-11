@@ -57,19 +57,47 @@ services:
     environment:
       - FLASK_APP=app.py
       - FLASK_DEBUG=1
-      - MLFLOW_HOST=mlflow  # Use service name for Docker networking
+      - MLFLOW_HOST=model-server  # Use service name for Docker networking
       - MLFLOW_PORT=5000    # Internal port for Docker networking
       - CMAKE_ARGS=-DLLAMA_CUBLAS=0    # Disable CUDA for llama-cpp-python
       - FORCE_CMAKE=1                  # Force using CMake for building
     depends_on:
       - vector-db
       - mlflow
+      - model-server
     restart: unless-stopped
+
+  model-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.model-server
+    ports:
+      - "5002:5000"
+    volumes:
+      - ./app:/model_server/app
+      - ./models:/model_server/models
+      - model-cache:/model_server/.cache
+    environment:
+      - PORT=5000
+      - HF_TOKEN=${HF_TOKEN}
+      - HF_MODEL_ID=meta-llama/Llama-3.2-1B-Instruct
+      - MODEL_PATH=/model_server/models/llm/Llama-3.2-1B-Instruct
+      - EMBEDDING_MODEL_PATH=/model_server/models/embedding/all-MiniLM-L6-v2
+      - RERANKER_MODEL_PATH=/model_server/models/reranker/ms-marco-MiniLM-L-6-v2
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health", "||", "exit", "0"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
 volumes:
   mlflow-docker-data:
     driver: local
   vector-data:
+    driver: local
+  model-cache:
     driver: local
 
 networks:

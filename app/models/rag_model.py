@@ -10,8 +10,9 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# Remove the USE_MOCK flag
 # Set this to True to use a mock implementation for testing
-USE_MOCK = True
+# USE_MOCK = False
 
 class RAGModel(mlflow.pyfunc.PythonModel):
     def __init__(self):
@@ -36,7 +37,7 @@ class RAGModel(mlflow.pyfunc.PythonModel):
             EMBEDDING_MODEL_PATH, RERANKER_MODEL_PATH, MODEL_PATH
         )
         from app.utils.search import create_search_pipeline
-        from app.utils.llm import create_rag_processor, MockLLMProcessor, RAGProcessor
+        from app.utils.llm import create_rag_processor
         
         # Create search pipeline
         search_pipeline = create_search_pipeline(
@@ -44,14 +45,8 @@ class RAGModel(mlflow.pyfunc.PythonModel):
             EMBEDDING_MODEL_PATH, RERANKER_MODEL_PATH
         )
         
-        # Use mock implementation for testing if USE_MOCK is True
-        if USE_MOCK:
-            logger.info("Using mock LLM processor for testing")
-            mock_processor = MockLLMProcessor()
-            self.rag_processor = RAGProcessor(search_pipeline, mock_processor)
-        else:
-            # Create RAG processor with real model
-            self.rag_processor = create_rag_processor(search_pipeline, MODEL_PATH)
+        # Create RAG processor with real model (no mock)
+        self.rag_processor = create_rag_processor(search_pipeline, MODEL_PATH)
         
         logger.info("RAG model context loaded")
     

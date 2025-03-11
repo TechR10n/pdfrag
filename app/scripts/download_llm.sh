@@ -15,7 +15,7 @@ fi
 echo "Installing huggingface_hub if needed..."
 pip install -q huggingface_hub
 
-echo "Downloading Llama-3.2-3B-Instruct model..."
+echo "Downloading Llama-3.2-1B-Instruct model..."
 echo "This will take some time depending on your connection."
 
 python -c "
@@ -27,8 +27,8 @@ os.environ['HF_TOKEN'] = '$HF_TOKEN'
 
 # Download model files
 model_path = snapshot_download(
-    repo_id='meta-llama/Llama-3.2-3B-Instruct',
-    local_dir='$LLM_DIR/Llama-3.2-3B-Instruct',
+    repo_id='meta-llama/Llama-3.2-1B-Instruct',
+    local_dir='$LLM_DIR/Llama-3.2-1B-Instruct',
     local_dir_use_symlinks=False
 )
 
@@ -39,8 +39,8 @@ print(f'Model downloaded to {model_path}')
 SETTINGS_PATH="app/config/settings.py"
 if [ -f "$SETTINGS_PATH" ]; then
     if grep -q "LLM_MODEL_PATH" "$SETTINGS_PATH"; then
-        sed -i '' 's|LLM_MODEL_PATH = .*|LLM_MODEL_PATH = os.path.join(BASE_DIR, "models", "llm", "Llama-3.2-3B-Instruct")|' "$SETTINGS_PATH"
-        echo "Updated settings.py to use the Llama-3.2-3B-Instruct model."
+        sed -i '' 's|LLM_MODEL_PATH = .*|LLM_MODEL_PATH = os.path.join(BASE_DIR, "models", "llm", "Llama-3.2-1B-Instruct")|' "$SETTINGS_PATH"
+        echo "Updated settings.py to use the Llama-3.2-1B-Instruct model."
     fi
 fi
 
@@ -125,4 +125,4 @@ sed -i '' 's/from llama_cpp import Llama/from llama_cpp import Llama\nfrom app.u
 # Update the LLMProcessor.__init__ method
 sed -i '' 's/self.model = Llama(/# Check if using Meta Llama model\n        if "Llama-3" in model_path and os.path.isdir(model_path):\n            self.model = MetaLlamaAdapter(\n                model_path=model_path,\n                max_new_tokens=max_tokens\n            )\n        else:\n            # Use llama-cpp for GGUF models\n            self.model = Llama(/' app/utils/llm.py
 
-echo "Setup complete for using meta-llama/Llama-3.2-3B-Instruct"
+echo "Setup complete for using meta-llama/Llama-3.2-1B-Instruct"

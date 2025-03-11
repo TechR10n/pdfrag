@@ -18,6 +18,9 @@ sentence-transformers==2.6.0
 transformers==4.39.3
 torch==2.6.0
 accelerate==0.27.2  # For loading and optimization of HF models
+safetensors==0.4.2  # For loading safetensors models
+bitsandbytes==0.42.0  # For quantization support
+huggingface_hub==0.21.3  # For downloading models from HF
 
 # Vector Database
 faiss-cpu==1.8.0
@@ -42,6 +45,7 @@ itsdangerous==2.1.2
 
 # API & Testing
 requests==2.31.0
+requests-toolbelt==1.0.0  # For multipart uploads and advanced request features
 pytest==7.4.4
 locust==2.20.1
 
