@@ -128,3 +128,61 @@ models/llm/
 
 # macOS system files
 .DS_Store
+
+# MLflow specific
+mlruns/
+mlflow/
+mlartifacts/
+outputs/
+
+# Docker related
+.docker/
+docker-compose.override.yml
+
+# IDE specific
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data files
+data/raw/
+data/processed/
+data/interim/
+data/vectors/
+data/chunks/
+*.csv
+*.xlsx
+*.parquet
+*.h5
+*.pkl
+*.joblib
+
+# Logs
+logs/
+*.log.*
+
+# Credentials and secrets (already have .env but adding more)
+credentials/
+secrets/
+*.pem
+*.key
+
+# Temporary files
+tmp/
+temp/
+.~*
+
+# OS specific (already have .DS_Store but adding more)
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Large binary files
+*.bin
+*.h5
+*.onnx
+*.pt
+*.pth
+*.tflite
+*.pb
