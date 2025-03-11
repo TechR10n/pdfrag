@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Local RAG System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2 text-center">
+        <h1 class="display-4 mb-4">Local RAG System</h1>
+        <p class="lead mb-5">
+            A complete Retrieval-Augmented Generation system running locally on your MacMini.
+            Upload PDF documents, ask questions, and get AI-generated answers based on your documents.
+        </p>
+        
+        <div class="row mb-5">
+            <div class="col-md-4">
+                <div class="card card-hover h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-file-upload fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Upload Documents</h5>
+                        <p class="card-text">Add your PDF files to the knowledge base.</p>
+                        <a href="{{ url_for('upload') }}" class="btn btn-outline-primary">Upload Files</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card card-hover h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-list fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Manage Documents</h5>
+                        <p class="card-text">View and manage your uploaded documents.</p>
+                        <a href="{{ url_for('documents') }}" class="btn btn-outline-primary">View Documents</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card card-hover h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-question-circle fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Ask Questions</h5>
+                        <p class="card-text">Get answers based on your documents.</p>
+                        <a href="{{ url_for('ask') }}" class="btn btn-outline-primary">Ask Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card bg-light">
+            <div class="card-body">
+                <h4>How It Works</h4>
+                <hr>
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <i class="fas fa-file-pdf fa-2x text-danger"></i>
+                        <h6 class="mt-2">1. Upload</h6>
+                        <p class="small">Add PDF documents to build your knowledge base</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <i class="fas fa-project-diagram fa-2x text-primary"></i>
+                        <h6 class="mt-2">2. Process</h6>
+                        <p class="small">Documents are chunked and indexed</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <i class="fas fa-search fa-2x text-success"></i>
+                        <h6 class="mt-2">3. Search</h6>
+                        <p class="small">Your question finds relevant content</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <i class="fas fa-robot fa-2x text-info"></i>
+                        <h6 class="mt-2">4. Answer</h6>
+                        <p class="small">AI generates an answer from the sources</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

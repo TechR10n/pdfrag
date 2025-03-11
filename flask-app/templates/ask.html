@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}Ask Questions - Local RAG System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        <h1 class="mb-4">Ask Questions</h1>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <form id="question-form">
+                    <div class="mb-3">
+                        <label for="question" class="form-label">Your Question</label>
+                        <textarea class="form-control" id="question" rows="3" placeholder="Enter your question here..." required></textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            <i class="fas fa-search me-2"></i> Ask Question
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Answer section (initially hidden) -->
+        <div id="answer-container" class="mb-4" style="display: none;">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Answer</h5>
+                </div>
+                <div class="card-body">
+                    <div class="answer-text" id="answer-text">
+                        <!-- Answer will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sources section (initially hidden) -->
+        <div id="sources-container" style="display: none;">
+            <h4>Sources</h4>
+            <div id="sources-list">
+                <!-- Sources will be inserted here -->
+            </div>
+        </div>
+        
+        <!-- Loading spinner (initially hidden) -->
+        <div id="loading-spinner" class="spinner-container" style="display: none;">
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Processing your question...</p>
+            </div>
+        </div>
+        
+        <!-- Error message (initially hidden) -->
+        <div id="error-message" class="alert alert-danger" style="display: none;">
+            <!-- Error will be inserted here -->
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const questionForm = document.getElementById('question-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const answerContainer = document.getElementById('answer-container');
+        const answerText = document.getElementById('answer-text');
+        const sourcesContainer = document.getElementById('sources-container');
+        const sourcesList = document.getElementById('sources-list');
+        const errorMessage = document.getElementById('error-message');
+        
+        questionForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get the question
+            const question = document.getElementById('question').value.trim();
+            if (!question) return;
+            
+            // Show loading spinner
+            loadingSpinner.style.display = 'flex';
+            answerContainer.style.display = 'none';
+            sourcesContainer.style.display = 'none';
+            errorMessage.style.display = 'none';
+            submitBtn.disabled = true;
+            
+            // Send the question to the API
+            fetch('/api/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question: question
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading spinner
+                loadingSpinner.style.display = 'none';
+                submitBtn.disabled = false;
+                
+                if (data.error) {
+                    // Show error message
+                    errorMessage.textContent = data.error;
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Show answer
+                answerText.innerHTML = data.text;
+                answerContainer.style.display = 'block';
+                
+                // Show sources if available
+                if (data.sources && data.sources.length > 0) {
+                    // Clear previous sources
+                    sourcesList.innerHTML = '';
+                    
+                    // Add each source
+                    data.sources.forEach((source, index) => {
+                        const sourceElement = document.createElement('div');
+                        sourceElement.className = 'source-item';
+                        sourceElement.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-file-pdf text-danger me-2"></i>
+                                    ${source.filename}
+                                </h6>
+                                <span class="badge bg-primary">Score: ${source.rerank_score.toFixed(2)}</span>
+                            </div>
+                            <div class="source-text">
+                                <p class="mb-0">${source.chunk_text}</p>
+                            </div>
+                        `;
+                        sourcesList.appendChild(sourceElement);
+                    });
+                    
+                    sourcesContainer.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loadingSpinner.style.display = 'none';
+                submitBtn.disabled = false;
+                errorMessage.textContent = 'An error occurred while processing your question. Please try again.';
+                errorMessage.style.display = 'block';
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

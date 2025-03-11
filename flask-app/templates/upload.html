@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Documents - Local RAG System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h1 class="mb-4">Upload Documents</h1>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Add PDF Files</h5>
+                <p class="card-text">Upload PDF documents to be processed and added to the knowledge base.</p>
+                
+                <form method="POST" enctype="multipart/form-data" class="mt-4">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Select PDF File</label>
+                        <input type="file" class="form-control" id="file" name="file" accept=".pdf" required>
+                        <div class="form-text">Maximum file size: 16MB</div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="rebuild" name="rebuild">
+                        <label class="form-check-label" for="rebuild">
+                            Rebuild index after upload (slower but ensures immediate availability)
+                        </label>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload me-2"></i> Upload Document
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Batch Upload</h5>
+                <p class="card-text">
+                    For uploading multiple files or large documents, you can directly copy files to the documents directory:
+                </p>
+                <div class="bg-light p-3 rounded">
+                    <code id="pdf-folder-path">{{ config['UPLOAD_FOLDER'] }}</code>
+                    <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('pdf-folder-path')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <p class="mt-2 mb-0 small text-muted">
+                    After copying files, you'll need to run the processing pipeline to index the documents.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    function copyToClipboard(elementId) {
+        const element = document.getElementById(elementId);
+        const text = element.textContent;
+        
+        navigator.clipboard.writeText(text).then(function() {
+            // Show a temporary success message
+            const button = element.nextElementSibling;
+            const originalIcon = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            button.classList.add('btn-success');
+            button.classList.remove('btn-outline-secondary');
+            
+            // Restore original after 2 seconds
+            setTimeout(function() {
+                button.innerHTML = originalIcon;
+                button.classList.remove('btn-success');
+                button.classList.add('btn-outline-secondary');
+            }, 2000);
+        });
+    }
+</script>
+{% endblock %}
+{% endblock %}

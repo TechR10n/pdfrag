@@ -1,0 +1,85 @@
+/* Custom styles for the RAG system */
+
+/* Main container min-height for short pages */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    flex: 1;
+}
+
+footer {
+    margin-top: auto;
+}
+
+/* Card hover effect */
+.card-hover:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+/* Document list */
+.document-list .document-item {
+    border-left: 4px solid #007bff;
+    margin-bottom: 10px;
+}
+
+/* Source highlighting */
+.source-highlight {
+    background-color: rgba(255, 243, 205, 0.5);
+    border-radius: 3px;
+    padding: 2px 4px;
+}
+
+/* Answer section */
+.answer-section {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.answer-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.source-section {
+    margin-top: 20px;
+    border-top: 1px solid #dee2e6;
+    padding-top: 15px;
+}
+
+.source-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+}
+
+.source-text {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+/* Loading spinner */
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+/* Citation tooltips */
+.citation {
+    cursor: pointer;
+    color: #007bff;
+    font-weight: bold;
+    font-size: 0.8rem;
+    vertical-align: super;
+}
