@@ -47,3 +47,16 @@ locust==2.20.1
 # Utilities
 python-dotenv==1.0.1
 click==8.1.7
+
+# Documentation - Sphinx
+sphinx==7.2.6
+sphinx-rtd-theme==2.0.0
+sphinx-markdown-tables==0.0.17
+myst-parser==2.0.0
+sphinx-copybutton==0.5.2
+rinoh-typeface-texgyrecursor==0.1.1  # Required by rinohtype
+rinoh-typeface-texgyreheros==0.1.1   # Required by rinohtype
+rinoh-typeface-texgyrepagella==0.1.1 # Required by rinohtype
+rinohtype==0.5.4  # Alternative PDF generator (no LaTeX required)
+sphinxcontrib-bibtex==2.5.0  # For bibliography support
+cairosvg==2.7.1  # For SVG to PDF conversion

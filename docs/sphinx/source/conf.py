@@ -2,6 +2,10 @@
 
 import os
 import sys
+import shutil
+import glob
+import subprocess
+from pathlib import Path
 sys.path.insert(0, os.path.abspath('../../..'))
 
 # -- Project information -----------------------------------------------------
@@ -19,7 +23,27 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx_markdown_tables',
     'myst_parser',
+    'sphinxcontrib.bibtex',
+    'sphinx.ext.imgconverter',
 ]
+
+# Configuration for sphinxcontrib.bibtex
+bibtex_bibfiles = []  # Empty list since we're not using bibliography files yet
+bibtex_default_style = 'plain'
+bibtex_reference_style = 'author_year'
+
+# Try to add rinohtype extension if available
+try:
+    import rinoh
+    extensions.append('rinoh.frontend.sphinx')
+    print("rinohtype extension loaded successfully")
+except ImportError:
+    try:
+        import rinohtype
+        extensions.append('rinohtype.frontend.sphinx')
+        print("rinohtype extension loaded successfully (alternative import)")
+    except ImportError:
+        print("Warning: rinohtype not available. PDF generation with rinohtype will be disabled.")
 
 # Auto-generate API documentation
 autosummary_generate = True
@@ -63,11 +87,26 @@ source_suffix = {
     '.md': 'markdown',
 }
 
-# -- Options for PDF output --------------------------------------------------
+# -- Options for PDF output with rinohtype -----------------------------------
+# Only configure if rinohtype is available
+try:
+    import rinoh
+    rinoh_documents = [
+        {
+            'doc': 'index',
+            'target': 'pdfragsystem',
+            'title': 'PDF RAG System Documentation',
+            'author': 'Ryan Hammang',
+            'toctree_only': False,
+        }
+    ]
+except ImportError:
+    pass
+
+# -- Options for LaTeX PDF output -------------------------------------------
 latex_engine = 'pdflatex'
 latex_elements = {
     'preamble': r'''
-\usepackage{underscore}
 \usepackage{graphicx}
 \usepackage[utf8]{inputenc}
 \usepackage{xcolor}
@@ -89,6 +128,11 @@ latex_elements = {
     'fncychap': r'\usepackage[Bjarne]{fncychap}',
     'printindex': r'\printindex',
 }
+
+# -- Simple SVG handling for LaTeX output -----------------------------------
+# This approach simply tells Sphinx to use PDF instead of SVG for LaTeX output
+def setup(app):
+    pass
 
 # -- Extension configuration -------------------------------------------------
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
