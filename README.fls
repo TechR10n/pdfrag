@@ -506,7 +506,6 @@ INPUT /opt/homebrew/Cellar/texlive/20240312_3/share/texmf-dist/tex/generic/strin
 INPUT /opt/homebrew/Cellar/texlive/20240312_3/share/texmf-dist/tex/generic/stringenc/se-utf8.def
 INPUT /opt/homebrew/Cellar/texlive/20240312_3/share/texmf-dist/tex/generic/stringenc/se-utf8.def
 INPUT /opt/homebrew/Cellar/texlive/20240312_3/share/texmf-dist/tex/generic/stringenc/se-utf8.def
-INPUT /opt/homebrew/Cellar/texlive/20240312_3/share/texmf-dist/fonts/tfm/public/lm/ec-lmr7.tfm
 INPUT README.aux
 INPUT /opt/homebrew/Cellar/texlive/20240312_3/share/texmf-dist/fonts/type1/public/lm/lmb10.pfb
 INPUT /opt/homebrew/Cellar/texlive/20240312_3/share/texmf-dist/fonts/type1/public/lm/lmr10.pfb
