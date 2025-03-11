@@ -1,0 +1,29 @@
+@startuml
+' Define the actor
+actor User
+
+' Define the use cases
+rectangle "Local RAG System" {
+    usecase "Upload PDFs" as upload_pdfs
+    usecase "Manage Documents" as manage_docs
+    usecase "Ask Questions" as ask_questions
+    usecase "View Answers" as view_answers
+    usecase "Process PDFs" as process_pdfs
+    usecase "Index Documents" as index_docs
+    usecase "Search Documents" as search_docs
+    usecase "Generate Responses" as generate_responses
+}
+
+' Define relationships between actor and use cases
+User --> upload_pdfs
+User --> manage_docs
+User --> ask_questions
+User --> view_answers
+
+' Define relationships between use cases
+upload_pdfs ..> process_pdfs : <<extends>>
+process_pdfs ..> index_docs : <<includes>>
+ask_questions ..> search_docs : <<extends>>
+search_docs ..> generate_responses : <<includes>>
+
+@enduml

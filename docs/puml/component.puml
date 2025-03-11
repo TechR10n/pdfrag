@@ -1,0 +1,43 @@
+@startuml
+' Define packages and components
+package "Web Interface" {
+  component "Flask Application" <<Web App>> as flask
+}
+
+package "Model Serving" {
+  component "MLflow Server" <<Model Serving>> as mlflow {
+    component "RAG Model" <<Python Class>> as rag_model
+  }
+}
+
+package "Models" {
+  component "Embedding Model" <<Sentence Transformers>> as embedding_model
+  component "Reranker Model" <<CrossEncoder>> as reranker_model
+  component "LLM Model" <<Llama>> as llm_model
+}
+
+package "Database" {
+  component "Vector Database" <<Qdrant>> as vector_db
+}
+
+package "Data Processing" {
+  component "Data Ingestion Pipeline" <<Pipeline>> as ingestion_pipeline
+}
+
+' Define relationships
+flask --> mlflow : "HTTP"
+rag_model --> vector_db : "uses"
+rag_model --> embedding_model : "uses"
+rag_model --> reranker_model : "uses"
+rag_model --> llm_model : "uses"
+ingestion_pipeline --> embedding_model : "uses"
+ingestion_pipeline --> vector_db : "uses"
+flask ..> ingestion_pipeline : "triggers"
+
+' Add notes for clarity
+note left of flask : "User interacts via web interface"
+note right of mlflow : "Serves RAG Model via REST API"
+note bottom of rag_model : "Implements RAG logic"
+note top of vector_db : "Stores vector embeddings"
+note bottom of ingestion_pipeline : "Processes PDFs and indexes vectors"
+@enduml

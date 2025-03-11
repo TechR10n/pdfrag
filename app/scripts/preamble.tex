@@ -1,0 +1,58 @@
+% ACM-specific customizations for acmart class
+% Compatible with screen, review, acmlarge options
+
+% Fix for special characters in code and text
+\usepackage{underscore}  % Better handling of underscores
+\usepackage{textcomp}    % Text companion fonts
+
+% Better image handling
+\usepackage{graphicx}    % Enhanced image support
+\usepackage{svg}         % SVG image support
+\svgpath{{./}}           % Set path for SVG files
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.svg}
+
+% Configure code listings for ACM format
+\usepackage{listings}
+\lstset{
+    basicstyle=\small\ttfamily,  % Readable font size for code
+    breaklines=true,
+    breakatwhitespace=true,
+    showstringspaces=false,
+    frame=single,
+    rulecolor=\color{gray!50},  % Light gray frame
+    captionpos=b,
+    escapeinside={(*@}{@*)},
+    literate={\_}{{\textunderscore}}1,
+    columns=flexible,
+    keepspaces=true,
+    basewidth=0.5em,
+    keywordstyle=\color{blue}\bfseries,  % Bold blue keywords
+    stringstyle=\color{red},             % Red strings
+    commentstyle=\color{green!60!black}, % Dark green comments
+    identifierstyle=\color{black}        % Black identifiers
+    }
+
+% Fix for potential conflicts with acmart class
+\makeatletter
+\let\@ACM@affiliation\@affiliation
+\makeatother
+
+% Ensure hyperref compatibility with acmart
+\makeatletter
+\@ifpackageloaded{hyperref}{
+  \hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+    breaklinks=true
+  }
+}{}
+\makeatother
+
+% Define a command for API function names with underscores
+\newcommand{\apifunction}[1]{\texttt{#1}}
+
+% Fix for tabular environments with special characters
+\usepackage{array}
+\newcolumntype{L}{>{\ttfamily\arraybackslash}l} 

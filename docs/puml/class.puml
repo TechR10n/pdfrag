@@ -1,0 +1,135 @@
+@startuml
+
+' Class diagram for Local RAG System
+
+' Define packages to organize classes
+package "Flask App" {
+  class FlaskApp {
+    +index()
+    +upload()
+    +documents()
+    +ask()
+    +api_ask()
+    +health()
+  }
+
+  class MLflowClient {
+    +predict(query: str): dict
+    +is_alive(): bool
+  }
+
+  class PipelineTrigger {
+    +run_pipeline_async(pdf_dir: str, rebuild: bool): dict
+  }
+}
+
+package "RAG Pipeline" {
+  class RAGModel {
+    +load_context(context: Any)
+    +predict(context: Any, model_input: Any): dict
+  }
+
+  class SearchPipeline {
+    +search(query: str): list[dict]
+  }
+
+  class QueryProcessor {
+    +process_query(query: str): np.ndarray
+  }
+
+  class Reranker {
+    +rerank(query: str, results: list[dict]): list[dict]
+  }
+
+  class LLMProcessor {
+    +create_prompt(query: str, context: list[dict]): str
+    +generate_response(prompt: str): dict
+  }
+
+  class VectorDBClient {
+    +create_collection()
+    +upload_vectors(df: pd.DataFrame)
+    +search(query_vector: list[float], limit: int): list[dict]
+    +count_vectors(): int
+  }
+}
+
+package "Utilities" {
+  class PDFIngestion {
+    +scan_directory(directory_path: str): list[dict]
+    +extract_text_from_pdf(pdf_path: str): str
+    +process_pdfs(directory_path: str): pd.DataFrame
+  }
+
+  class TextChunking {
+    +chunk_text(text: str, chunk_size: int, chunk_overlap: int): list[str]
+    +process_chunks(df: pd.DataFrame): pd.DataFrame
+  }
+
+  class EmbeddingGenerator {
+    +generate_embeddings(texts: list[str]): np.ndarray
+    +process_dataframe(df: pd.DataFrame): pd.DataFrame
+  }
+}
+
+' Define relationships
+FlaskApp --> MLflowClient : uses
+FlaskApp --> PipelineTrigger : uses
+
+RAGModel --> SearchPipeline : uses
+RAGModel --> LLMProcessor : uses
+
+SearchPipeline --> QueryProcessor : uses
+SearchPipeline --> Reranker : uses
+SearchPipeline --> VectorDBClient : uses
+
+QueryProcessor --> EmbeddingGenerator : uses
+
+LLMProcessor --> "Llama Model" : uses
+
+VectorDBClient --> "Qdrant" : uses
+
+PDFIngestion --> "PDFs" : processes
+TextChunking --> PDFIngestion : uses
+EmbeddingGenerator --> TextChunking : uses
+
+' Models and external components
+class "Llama Model" as llama_model
+class "Embedding Model" as embedding_model
+class "Reranker Model" as reranker_model
+class "Qdrant" as qdrant
+
+QueryProcessor --> embedding_model : uses
+Reranker --> reranker_model : uses
+LLMProcessor --> llama_model : uses
+VectorDBClient --> qdrant : uses
+
+' DataFrames and other artifacts
+class "PDF DataFrame" as pdf_df
+class "Chunks DataFrame" as chunks_df
+class "Embeddings DataFrame" as embeddings_df
+
+PDFIngestion --> pdf_df : produces
+TextChunking --> chunks_df : produces
+EmbeddingGenerator --> embeddings_df : produces
+
+' Settings and configurations
+class Settings {
+  +BASE_DIR: str
+  +VECTOR_DB_HOST: str
+  +VECTOR_DB_PORT: int
+  +EMBEDDING_MODEL_PATH: str
+  +RERANKER_MODEL_PATH: str
+  +LLM_MODEL_PATH: str
+  +MLFLOW_TRACKING_URI: str
+  +FLASK_SECRET_KEY: str
+  +PDF_UPLOAD_FOLDER: str
+}
+
+' Relationships to settings
+FlaskApp --> Settings : uses
+RAGModel --> Settings : uses
+VectorDBClient --> Settings : uses
+MLflowClient --> Settings : uses
+
+@enduml

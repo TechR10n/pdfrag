@@ -1,59 +1,247 @@
-## Project Overview
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+  screen,review,acmlarge]{acmart}
+\usepackage{xcolor}
+
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{listings}
+\newcommand{\passthrough}[1]{#1}
+\lstset{defaultdialect=[5.3]Lua}
+\lstset{defaultdialect=[x86masm]Assembler}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+% ACM-specific customizations for acmart class
+% Compatible with screen, review, acmlarge options
+
+% Fix for special characters in code and text
+\usepackage{underscore}  % Better handling of underscores
+\usepackage{textcomp}    % Text companion fonts
+
+% Better image handling
+\usepackage{graphicx}    % Enhanced image support
+\usepackage{svg}         % SVG image support
+\svgpath{{./}}           % Set path for SVG files
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.svg}
+
+% Configure code listings for ACM format
+\usepackage{listings}
+\lstset{
+    basicstyle=\small\ttfamily,  % Readable font size for code
+    breaklines=true,
+    breakatwhitespace=true,
+    showstringspaces=false,
+    frame=single,
+    rulecolor=\color{gray!50},  % Light gray frame
+    captionpos=b,
+    escapeinside={(*@}{@*)},
+    literate={\_}{{\textunderscore}}1,
+    columns=flexible,
+    keepspaces=true,
+    basewidth=0.5em,
+    keywordstyle=\color{blue}\bfseries,  % Bold blue keywords
+    stringstyle=\color{red},             % Red strings
+    commentstyle=\color{green!60!black}, % Dark green comments
+    identifierstyle=\color{black}        % Black identifiers
+    }
+
+% Fix for potential conflicts with acmart class
+\makeatletter
+\let\@ACM@affiliation\@affiliation
+\makeatother
+
+% Ensure hyperref compatibility with acmart
+\makeatletter
+\@ifpackageloaded{hyperref}{
+  \hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+    breaklinks=true
+  }
+}{}
+\makeatother
+
+% Define a command for API function names with underscores
+\newcommand{\apifunction}[1]{\texttt{#1}}
+
+% Fix for tabular environments with special characters
+\usepackage{array}
+\newcolumntype{L}{>{\ttfamily\arraybackslash}l} 
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Laboratory Handbook: Building a Local RAG System with Flask and MLflow},
+  pdfauthor={Ryan Hammang},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Laboratory Handbook: Building a Local RAG System with Flask and MLflow}
+\author{Ryan Hammang}
+\date{March 11, 2025}
+
+\begin{document}
+
+\begin{abstract}
+Creating a local RAG system with Flask and MLflow.
+\end{abstract}
+
+
+\maketitle
+
+
+
+
+\subsection{Project Overview}\label{project-overview}
 
 This laboratory course guides you through building a complete Retrieval-Augmented Generation (RAG) system that operates entirely on local hardware. By the end of this intensive workshop, you will have created a production-ready application that processes PDF documents, generates embeddings, performs semantic search, and answers questions using local large language modelsall accessible through a Flask web interface and MLflow serving endpoint.
 
-## Hardware Requirements
-- Apple MacMini with M2 Pro chip (or equivalent)
-- 16GB RAM minimum
-- 50GB available storage
-- macOS Ventura 15.3.1 or later
+\subsection{Hardware Requirements}\label{hardware-requirements}
 
-## Software Prerequisites
-- Python 3.10+
-- Docker Desktop for Mac
-- Git
-- Homebrew (recommended for macOS)
+\begin{itemize}
+\tightlist
+\item
+  Apple MacMini with M2 Pro chip (or equivalent)
+\item
+  16GB RAM minimum
+\item
+  50GB available storage
+\item
+  macOS Ventura 15.3.1 or later
+\end{itemize}
 
-## Lab 1: Foundation and Infrastructure
+\subsection{Software Prerequisites}\label{software-prerequisites}
 
-### Lab 1.1: Environment Setup and Project Structure
+\begin{itemize}
+\tightlist
+\item
+  Python 3.10+
+\item
+  Docker Desktop for Mac
+\item
+  Git
+\item
+  Homebrew (recommended for macOS)
+\end{itemize}
 
-#### Learning Objectives:
+\subsection{Lab 1: Foundation and Infrastructure}\label{lab-1-foundation-and-infrastructure}
 
-- Configure a proper development environment for ML applications
-- Understand containerization principles with Docker
-- Establish a maintainable project structure
+\subsubsection{Lab 1.1: Environment Setup and Project Structure}\label{lab-1.1-environment-setup-and-project-structure}
 
-#### Setup Instructions:
+\paragraph{Learning Objectives:}\label{learning-objectives}
 
-1. Open Terminal and create your project directory structure:
+\begin{itemize}
+\tightlist
+\item
+  Configure a proper development environment for ML applications
+\item
+  Understand containerization principles with Docker
+\item
+  Establish a maintainable project structure
+\end{itemize}
 
-```bash
+\paragraph{Setup Instructions:}\label{setup-instructions}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Open Terminal and create your project directory structure:
+\end{enumerate}
+
+\begin{lstlisting}[language=bash]
 mkdir -p {app,data,models,docker,mlflow,flask-app}
 mkdir -p data/{pdfs,vectors,documents}
 mkdir -p models/{embedding,reranker,llm}
 mkdir -p app/{utils,api,evaluation,tests}
 mkdir -p flask-app/{static,templates,utils,tests}
 mkdir -p flask-app/static/{css,js,images}
-```
+\end{lstlisting}
 
-2. Create and activate a virtual environment:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Create and activate a virtual environment:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 python -m venv venv
 source venv/bin/activate
 pip install --upgrade pip wheel setuptools
-```
+\end{lstlisting}
 
-3. Create a requirements file:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Create a requirements file:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch requirements.txt
-```
+\end{lstlisting}
 
-4. Add the following dependencies to `requirements.txt`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Add the following dependencies to \passthrough{\lstinline!requirements.txt!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 # Core Libraries
 pandas==2.2.1
 numpy==1.26.4
@@ -103,28 +291,46 @@ locust==2.20.1
 # Utilities
 python-dotenv==1.0.1
 click==8.1.7
-```
+\end{lstlisting}
 
-5. Install the dependencies:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  Install the dependencies:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 pip install --upgrade pip wheel setuptools
 pip uninstall -y llama-cpp-python
 CMAKE_ARGS="-DLLAMA_METAL=on" pip install llama-cpp-python==0.2.49
 pip install --prefer-binary -r requirements.txt
-```
+\end{lstlisting}
 
-**Professor's Hint:** _When working with ML libraries on Apple Silicon, use native ARM packages where possible. The torch package specified here is compiled for M-series chips. For libraries without native ARM support, Rosetta 2 will handle the translation, but with a performance penalty._
+\textbf{Professor's Hint:} \emph{When working with ML libraries on Apple Silicon, use native ARM packages where possible. The torch package specified here is compiled for M-series chips. For libraries without native ARM support, Rosetta 2 will handle the translation, but with a performance penalty.}
 
-6. Create a Docker Compose file in the root directory:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  Create a Docker Compose file in the root directory:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch docker-compose.yml
-```
+\end{lstlisting}
 
-7. Add the following configuration to `docker-compose.yml`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{6}
+\tightlist
+\item
+  Add the following configuration to \passthrough{\lstinline!docker-compose.yml!}:
+\end{enumerate}
 
-```yaml
+\begin{lstlisting}
 # docker-compose.yml - Updated to avoid port 5000 conflict
 
 services:
@@ -201,44 +407,78 @@ networks:
   default:
     driver: bridge
     name: rag-network
-```
+\end{lstlisting}
 
-8. Start the containers to verify the setup:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{7}
+\tightlist
+\item
+  Start the containers to verify the setup:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 docker-compose up -d
-```
+\end{lstlisting}
 
-#### Checkpoint Questions:
+\paragraph{Checkpoint Questions:}\label{checkpoint-questions}
 
-1. Why are we using Docker for certain components instead of running everything natively?
-2. What is the purpose of volume mapping in Docker Compose?
-3. What does the `restart: unless-stopped` directive do in the Docker Compose file?
-4. How does containerization affect the portability versus performance tradeoff for ML systems?
-5. What security implications arise from running AI models locally versus in cloud environments?
-6. How would different embedding model sizes affect the system's memory footprint and performance?
-7. **Additional Challenge:** Add a PostgreSQL container to the Docker Compose file as an alternative backend for MLflow instead of SQLite.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Why are we using Docker for certain components instead of running everything natively?
+\item
+  What is the purpose of volume mapping in Docker Compose?
+\item
+  What does the \passthrough{\lstinline!restart: unless-stopped!} directive do in the Docker Compose file?
+\item
+  How does containerization affect the portability versus performance tradeoff for ML systems?
+\item
+  What security implications arise from running AI models locally versus in cloud environments?
+\item
+  How would different embedding model sizes affect the system's memory footprint and performance?
+\item
+  \textbf{Additional Challenge:} Add a PostgreSQL container to the Docker Compose file as an alternative backend for MLflow instead of SQLite.
+\end{enumerate}
 
-### Lab 1.2: Model Preparation and Configuration
+\subsubsection{Lab 1.2: Model Preparation and Configuration}\label{lab-1.2-model-preparation-and-configuration}
 
-#### Learning Objectives:
+\paragraph{Learning Objectives:}\label{learning-objectives-1}
 
-- Download and prepare ML models for offline use
-- Create configuration files for application settings
-- Understand model size and performance tradeoffs
+\begin{itemize}
+\tightlist
+\item
+  Download and prepare ML models for offline use
+\item
+  Create configuration files for application settings
+\item
+  Understand model size and performance tradeoffs
+\end{itemize}
 
-#### Exercises:
+\paragraph{Exercises:}\label{exercises}
 
-1. Create a configuration file for the application:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Create a configuration file for the application:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 mkdir -p app/config
 touch app/config/settings.py
-```
+\end{lstlisting}
 
-2. Add the following to `app/config/settings.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/config/settings.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 from pathlib import Path
 
@@ -269,18 +509,30 @@ MLFLOW_MODEL_NAME = "rag_model"
 FLASK_SECRET_KEY = "change-this-in-production"
 PDF_UPLOAD_FOLDER = os.path.join(BASE_DIR, "data", "pdfs")
 ALLOWED_EXTENSIONS = {'pdf'}
-```
+\end{lstlisting}
 
-3. Create a script to download the embedding model:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Create a script to download the embedding model:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 mkdir -p app/scripts
 touch app/scripts/download_models.py
-```
+\end{lstlisting}
 
-4. Add the following to `app/scripts/download_models.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/scripts/download\_models.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import sys
 from pathlib import Path
@@ -329,24 +581,42 @@ if __name__ == "__main__":
     download_embedding_model()
     download_reranker_model()
     print("Please manually download the LLM model using the instructions in the README.")
-```
+\end{lstlisting}
 
-5. Run the script to download the models:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  Run the script to download the models:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 python app/scripts/download_models.py
-```
+\end{lstlisting}
 
-6. Create a script to download the LLM model (manual step due to size):
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  Create a script to download the LLM model (manual step due to size):
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/scripts/download_llm.sh
 chmod +x app/scripts/download_llm.sh
-```
+\end{lstlisting}
 
-7. Add the following to `app/scripts/download_llm.sh`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{6}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/scripts/download\_llm.sh!}:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 #!/bin/bash
 
 # Directory for LLM model
@@ -379,10 +649,11 @@ else
     echo "Error: Llama 3 model download failed or file is empty."
     exit 1
 fi
-```
+\end{lstlisting}
 
 7.5 Alternative using Meta's Llama-3.2-3B-Instruct model:
-```bash
+
+\begin{lstlisting}[language=bash]
 ./app/scripts/download_llm.sh
 #!/bin/bash
 
@@ -513,44 +784,75 @@ sed -i '' 's/from llama_cpp import Llama/from llama_cpp import Llama\nfrom app.u
 sed -i '' 's/self.model = Llama(/# Check if using Meta Llama model\n        if "Llama-3" in model_path and os.path.isdir(model_path):\n            self.model = MetaLlamaAdapter(\n                model_path=model_path,\n                max_new_tokens=max_tokens\n            )\n        else:\n            # Use llama-cpp for GGUF models\n            self.model = Llama(/' app/utils/llm.py
 
 echo "Setup complete for using meta-llama/Llama-3.2-3B-Instruct"
-```
+\end{lstlisting}
 
-8. Run the script to download the LLM model:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{7}
+\tightlist
+\item
+  Run the script to download the LLM model:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 ./app/scripts/download_llm.sh
-```
+\end{lstlisting}
 
-**Professor's Hint:** _The LLM download is about 4GB, so it may take some time. We're using a 4-bit quantized model (Q4_0) to optimize for memory usage on the MacMini. The quality-performance tradeoff is reasonable for most use cases. For higher quality, consider the Q5_K_M variant if your system has sufficient RAM._
+\textbf{Professor's Hint:} \emph{The LLM download is about 4GB, so it may take some time. We're using a 4-bit quantized model (Q4\_0) to optimize for memory usage on the MacMini. The quality-performance tradeoff is reasonable for most use cases. For higher quality, consider the Q5\_K\_M variant if your system has sufficient RAM.}
 
-#### Checkpoint Questions:
+\paragraph{Checkpoint Questions:}\label{checkpoint-questions-1}
 
-1. Why do we use a configuration file instead of hardcoding values in our application?
-2. What is model quantization and why is it important for local LLM deployment?
-3. How does the dimension of the embedding vector (384) impact our system?
-4. **Additional Challenge:** Create a script to benchmark the performance of the embedding model and LLM on your local hardware. Measure throughput (tokens/second) and memory usage.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Why do we use a configuration file instead of hardcoding values in our application?
+\item
+  What is model quantization and why is it important for local LLM deployment?
+\item
+  How does the dimension of the embedding vector (384) impact our system?
+\item
+  \textbf{Additional Challenge:} Create a script to benchmark the performance of the embedding model and LLM on your local hardware. Measure throughput (tokens/second) and memory usage.
+\end{enumerate}
 
-## Lab 2: PDF Processing and Embedding Pipeline
+\subsection{Lab 2: PDF Processing and Embedding Pipeline}\label{lab-2-pdf-processing-and-embedding-pipeline}
 
-### Lab 2.1: PDF Ingestion and Text Extraction
+\subsubsection{Lab 2.1: PDF Ingestion and Text Extraction}\label{lab-2.1-pdf-ingestion-and-text-extraction}
 
-#### Learning Objectives:
+\paragraph{Learning Objectives:}\label{learning-objectives-2}
 
-- Implement robust PDF text extraction
-- Handle various PDF formats and structures
-- Build a scalable document processing pipeline
+\begin{itemize}
+\tightlist
+\item
+  Implement robust PDF text extraction
+\item
+  Handle various PDF formats and structures
+\item
+  Build a scalable document processing pipeline
+\end{itemize}
 
-#### Exercises:
+\paragraph{Exercises:}\label{exercises-1}
 
-1. Create a PDF ingestion utility:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Create a PDF ingestion utility:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/utils/pdf_ingestion.py
-```
+\end{lstlisting}
 
-2. Add the following to `app/utils/pdf_ingestion.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/utils/pdf\_ingestion.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import pandas as pd
 from pathlib import Path
@@ -685,17 +987,29 @@ if __name__ == "__main__":
     df = process_pdfs(PDF_UPLOAD_FOLDER)
     print(f"Processed {len(df)} PDFs")
     print(df.head())
-```
+\end{lstlisting}
 
-3. Create a text chunking utility:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Create a text chunking utility:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/utils/text_chunking.py
-```
+\end{lstlisting}
 
-4. Add the following to `app/utils/text_chunking.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/utils/text\_chunking.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import re
 import uuid
 from typing import List, Dict, Any
@@ -827,19 +1141,31 @@ if __name__ == "__main__":
     
     print(f"Created {len(chunks_df)} chunks")
     print(chunks_df.head())
-```
+\end{lstlisting}
 
-**Professor's Hint:** _When extracting text from PDFs, remember that they're essentially containers of independent objects rather than structured documents. Many PDFs, especially scientific papers with multiple columns, can be challenging to extract in reading order. Consider extracting "blocks" (as shown in the code) for a balance between structure preservation and accuracy._
+\textbf{Professor's Hint:} \emph{When extracting text from PDFs, remember that they're essentially containers of independent objects rather than structured documents. Many PDFs, especially scientific papers with multiple columns, can be challenging to extract in reading order. Consider extracting ``blocks'' (as shown in the code) for a balance between structure preservation and accuracy.}
 
-5. Create a test script for PDF processing:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  Create a test script for PDF processing:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/tests/test_pdf_processing.py
-```
+\end{lstlisting}
 
-6. Add the following to `app/tests/test_pdf_processing.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/tests/test\_pdf\_processing.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import sys
 import pytest
@@ -893,42 +1219,77 @@ def test_chunk_text():
 if __name__ == "__main__":
     # Run tests
     pytest.main(["-xvs", __file__])
-```
+\end{lstlisting}
 
-7. Run the test script:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{6}
+\tightlist
+\item
+  Run the test script:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 python app/tests/test_pdf_processing.py
-```
+\end{lstlisting}
 
-#### Checkpoint Questions:
+\paragraph{Checkpoint Questions:}\label{checkpoint-questions-2}
 
-1. What are some challenges with extracting text from PDFs?
-2. Why do we use chunking with overlap instead of simply splitting the text at fixed intervals?
-3. How would the choice of `chunk_size` and `chunk_overlap` impact the RAG system?
-4. How do different PDF extraction techniques handle multi-column layouts, tables, and graphics?
-5. What architectural changes would be needed to handle non-PDF documents like Word, PowerPoint, or HTML?
-6. How might language-specific considerations affect the text extraction and chunking process for multilingual documents?
-7. **Additional Challenge:** Enhance the PDF extraction to handle tables and preserve their structure using PyMuPDF's table extraction capabilities.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  What are some challenges with extracting text from PDFs?
+\item
+  Why do we use chunking with overlap instead of simply splitting the text at fixed intervals?
+\item
+  How would the choice of \passthrough{\lstinline!chunk\_size!} and \passthrough{\lstinline!chunk\_overlap!} impact the RAG system?
+\item
+  How do different PDF extraction techniques handle multi-column layouts, tables, and graphics?
+\item
+  What architectural changes would be needed to handle non-PDF documents like Word, PowerPoint, or HTML?
+\item
+  How might language-specific considerations affect the text extraction and chunking process for multilingual documents?
+\item
+  \textbf{Additional Challenge:} Enhance the PDF extraction to handle tables and preserve their structure using PyMuPDF's table extraction capabilities.
+\end{enumerate}
 
-### Lab 2.2: Vector Database Setup and Embedding Generation
+\subsubsection{Lab 2.2: Vector Database Setup and Embedding Generation}\label{lab-2.2-vector-database-setup-and-embedding-generation}
 
-#### Learning Objectives:
-- Implement vector embedding generation
-- Set up a vector database for semantic search
-- Design an efficient document storage system
+\paragraph{Learning Objectives:}\label{learning-objectives-3}
 
-#### Exercises:
+\begin{itemize}
+\tightlist
+\item
+  Implement vector embedding generation
+\item
+  Set up a vector database for semantic search
+\item
+  Design an efficient document storage system
+\end{itemize}
 
-1. Create an embedding utility:
+\paragraph{Exercises:}\label{exercises-2}
 
-```bash
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Create an embedding utility:
+\end{enumerate}
+
+\begin{lstlisting}[language=bash]
 touch app/utils/embedding_generation.py
-```
+\end{lstlisting}
 
-2. Add the following to `app/utils/embedding_generation.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/utils/embedding\_generation.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import numpy as np
 import pandas as pd
@@ -1048,17 +1409,29 @@ if __name__ == "__main__":
     
     print(f"Generated embeddings for {len(chunks_with_embeddings)} chunks")
     print(f"Embedding dimension: {len(chunks_with_embeddings['embedding'].iloc[0])}")
-```
+\end{lstlisting}
 
-3. Create a vector database client:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Create a vector database client:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/utils/vector_db.py
-```
+\end{lstlisting}
 
-4. Add the following to `app/utils/vector_db.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/utils/vector\_db.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import pandas as pd
 import numpy as np
@@ -1279,19 +1652,31 @@ if __name__ == "__main__":
     # Count vectors
     count = vector_db.count_vectors()
     print(f"Vector database contains {count} vectors")
-```
+\end{lstlisting}
 
-**Professor's Hint:** _Vector database performance is critical for RAG applications. Qdrant offers excellent performance with minimal resource usage, making it suitable for our MacMini deployment. The cosine distance metric is used because our embeddings are normalized, making it equivalent to dot product but slightly more intuitivea score of 1.0 means perfect similarity._
+\textbf{Professor's Hint:} \emph{Vector database performance is critical for RAG applications. Qdrant offers excellent performance with minimal resource usage, making it suitable for our MacMini deployment. The cosine distance metric is used because our embeddings are normalized, making it equivalent to dot product but slightly more intuitivea score of 1.0 means perfect similarity.}
 
-5. Create a pipeline script to orchestrate the entire process:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  Create a pipeline script to orchestrate the entire process:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/pipeline.py
-```
+\end{lstlisting}
 
-6. Add the following to `app/pipeline.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/pipeline.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import sys
 import argparse
@@ -1368,17 +1753,29 @@ if __name__ == "__main__":
     
     # Run pipeline
     run_pipeline(args.pdf_dir, args.rebuild)
-```
+\end{lstlisting}
 
-7. Create a test script for the vector database:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{6}
+\tightlist
+\item
+  Create a test script for the vector database:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/tests/test_vector_db.py
-```
+\end{lstlisting}
 
-8. Add the following to `app/tests/test_vector_db.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{7}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/tests/test\_vector\_db.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import sys
 import pytest
@@ -1474,39 +1871,67 @@ def test_vector_operations():
 if __name__ == "__main__":
     # Run tests
     pytest.main(["-xvs", __file__])
-```
+\end{lstlisting}
 
-#### Checkpoint Questions:
+\paragraph{Checkpoint Questions:}\label{checkpoint-questions-3}
 
-1. Why do we normalize embeddings before storing them in the vector database?
-2. What are the tradeoffs between different distance metrics (cosine, Euclidean, dot product)?
-3. How does batch processing improve performance when generating embeddings or uploading to the vector database?
-4. How would you modify the embedding strategy if you needed to handle documents in multiple languages?
-5. How does the choice of vector dimension affect the semantic richness versus computational efficiency tradeoff?
-6. What information might be lost during the chunking process, and how could this affect retrieval quality?
-7. **Additional Challenge:** Implement a method to incrementally update the vector database when new PDFs are added, without reprocessing the entire corpus.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Why do we normalize embeddings before storing them in the vector database?
+\item
+  What are the tradeoffs between different distance metrics (cosine, Euclidean, dot product)?
+\item
+  How does batch processing improve performance when generating embeddings or uploading to the vector database?
+\item
+  How would you modify the embedding strategy if you needed to handle documents in multiple languages?
+\item
+  How does the choice of vector dimension affect the semantic richness versus computational efficiency tradeoff?
+\item
+  What information might be lost during the chunking process, and how could this affect retrieval quality?
+\item
+  \textbf{Additional Challenge:} Implement a method to incrementally update the vector database when new PDFs are added, without reprocessing the entire corpus.
+\end{enumerate}
 
-## Lab 3: Query Processing and RAG Implementation
+\subsection{Lab 3: Query Processing and RAG Implementation}\label{lab-3-query-processing-and-rag-implementation}
 
-### Lab 3.1: Vector Search and Re-ranking
+\subsubsection{Lab 3.1: Vector Search and Re-ranking}\label{lab-3.1-vector-search-and-re-ranking}
 
-#### Learning Objectives:
+\paragraph{Learning Objectives:}\label{learning-objectives-4}
 
-- Implement effective query processing
-- Build a re-ranking system for search results
-- Optimize search relevance using modern techniques
+\begin{itemize}
+\tightlist
+\item
+  Implement effective query processing
+\item
+  Build a re-ranking system for search results
+\item
+  Optimize search relevance using modern techniques
+\end{itemize}
 
-#### Exercises:
+\paragraph{Exercises:}\label{exercises-3}
 
-1. Create a query processing utility:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Create a query processing utility:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/utils/query_processing.py
-```
+\end{lstlisting}
 
-2. Add the following to `app/utils/query_processing.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/utils/query\_processing.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import numpy as np
 from typing import List, Dict, Any
@@ -1580,17 +2005,29 @@ if __name__ == "__main__":
     query = "What is retrieval-augmented generation?"
     embedding = process_query(query, EMBEDDING_MODEL_PATH)
     print(f"Query embedding shape: {embedding.shape}")
-```
+\end{lstlisting}
 
-3. Create a re-ranking utility:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Create a re-ranking utility:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/utils/reranking.py
-```
+\end{lstlisting}
 
-4. Add the following to `app/utils/reranking.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/utils/reranking.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import numpy as np
 from typing import List, Dict, Any
@@ -1691,19 +2128,31 @@ if __name__ == "__main__":
     for i, result in enumerate(reranked_results[:5]):
         print(f"{i+1}. Score: {result['rerank_score']:.4f}, Original Score: {result['score']:.4f}")
         print(f"   Text: {result['chunk_text'][:100]}...")
-```
+\end{lstlisting}
 
-**Professor's Hint:** _Re-ranking is one of the most effective yet underutilized techniques in RAG systems. While vector similarity gives us a "ballpark" match, cross-encoders consider the query and document together to produce much more accurate relevance scores. The computational cost is higher, but since we only re-rank a small number of results, the overall impact is minimal._
+\textbf{Professor's Hint:} \emph{Re-ranking is one of the most effective yet underutilized techniques in RAG systems. While vector similarity gives us a ``ballpark'' match, cross-encoders consider the query and document together to produce much more accurate relevance scores. The computational cost is higher, but since we only re-rank a small number of results, the overall impact is minimal.}
 
-5. Create a search pipeline that combines vector search and re-ranking:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  Create a search pipeline that combines vector search and re-ranking:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/utils/search.py
-```
+\end{lstlisting}
 
-6. Add the following to `app/utils/search.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/utils/search.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 from typing import List, Dict, Any
 import logging
@@ -1828,37 +2277,65 @@ if __name__ == "__main__":
         print(f"   File: {result['filename']}")
         print(f"   Text: {result['chunk_text'][:200]}...")
         print()
-```
+\end{lstlisting}
 
-#### Checkpoint Questions:
+\paragraph{Checkpoint Questions:}\label{checkpoint-questions-4}
 
-1. How does the two-stage retrieval process (vector search  re-ranking) improve result quality?
-2. What are the performance implications of increasing the number of results to re-rank?
-3. Why is it important to normalize query embeddings in the same way as document embeddings?
-4. How might different similarity thresholds affect recall versus precision in retrieval results?
-5. What architectural changes would be needed if you wanted to incorporate hybrid search (combining vector similarity with keyword matching)?
-6. How would the search pipeline need to be modified to support multi-modal queries (such as image + text)?
-7. **Additional Challenge:** Implement a hybrid search that combines vector similarity with BM25 keyword matching for improved retrieval of rare terms and phrases.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  How does the two-stage retrieval process (vector search re-ranking) improve result quality?
+\item
+  What are the performance implications of increasing the number of results to re-rank?
+\item
+  Why is it important to normalize query embeddings in the same way as document embeddings?
+\item
+  How might different similarity thresholds affect recall versus precision in retrieval results?
+\item
+  What architectural changes would be needed if you wanted to incorporate hybrid search (combining vector similarity with keyword matching)?
+\item
+  How would the search pipeline need to be modified to support multi-modal queries (such as image + text)?
+\item
+  \textbf{Additional Challenge:} Implement a hybrid search that combines vector similarity with BM25 keyword matching for improved retrieval of rare terms and phrases.
+\end{enumerate}
 
-### Lab 3.2: LLM Integration and Response Generation
+\subsubsection{Lab 3.2: LLM Integration and Response Generation}\label{lab-3.2-llm-integration-and-response-generation}
 
-#### Learning Objectives:
+\paragraph{Learning Objectives:}\label{learning-objectives-5}
 
-- Integrate a local LLM for answer generation
-- Design effective prompts for RAG systems
-- Implement context augmentation techniques
+\begin{itemize}
+\tightlist
+\item
+  Integrate a local LLM for answer generation
+\item
+  Design effective prompts for RAG systems
+\item
+  Implement context augmentation techniques
+\end{itemize}
 
-#### Exercises:
+\paragraph{Exercises:}\label{exercises-4}
 
-1. Create an LLM utility:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Create an LLM utility:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/utils/llm.py
-```
+\end{lstlisting}
 
-2. Add the following to `app/utils/llm.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/utils/llm.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 from typing import Dict, Any, List, Optional
 from llama_cpp import Llama
@@ -2079,19 +2556,31 @@ if __name__ == "__main__":
     print(f"Sources: {len(response['sources'])}")
     for i, source in enumerate(response['sources']):
         print(f"Source {i+1}: {source['filename']} (Score: {source['rerank_score']:.4f})")
-```
+\end{lstlisting}
 
-**Professor's Hint:** _Prompt engineering is critical for effective RAG systems. The prompt should guide the LLM to focus on the provided context and avoid hallucination. Setting a lower temperature (e.g., 0.2) helps produce more factual, deterministic responses based on the context._
+\textbf{Professor's Hint:} \emph{Prompt engineering is critical for effective RAG systems. The prompt should guide the LLM to focus on the provided context and avoid hallucination. Setting a lower temperature (e.g., 0.2) helps produce more factual, deterministic responses based on the context.}
 
-3. Create a complete RAG application:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Create a complete RAG application:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/rag_app.py
-```
+\end{lstlisting}
 
-4. Add the following to `app/rag_app.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/rag\_app.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import sys
 import argparse
@@ -2191,39 +2680,68 @@ if __name__ == "__main__":
         print(response['text'])
     else:
         parser.print_help()
-```
+\end{lstlisting}
 
-#### Checkpoint Questions:
+\paragraph{Checkpoint Questions:}\label{checkpoint-questions-5}
 
-1. How does the prompt structure influence the quality of LLM responses in a RAG system?
-2. What LLM parameters (temperature, top_p, etc.) are most important for RAG applications and why?
-3. How do we handle the case where no relevant documents are found in the search phase?
-4. What are the ethical considerations when an LLM generates answers that contradict the retrieved context?
-5. How would you modify the system to support providing citations or references in the generated responses?
-6. What techniques could you implement to reduce hallucinations in the generated answers?
-7. How does the choice of context window size affect the tradeoff between comprehensive context and response quality?
-8. **Additional Challenge:** Implement a document citation mechanism that links specific parts of the response to the source documents, allowing users to verify information.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  How does the prompt structure influence the quality of LLM responses in a RAG system?
+\item
+  What LLM parameters (temperature, top\_p, etc.) are most important for RAG applications and why?
+\item
+  How do we handle the case where no relevant documents are found in the search phase?
+\item
+  What are the ethical considerations when an LLM generates answers that contradict the retrieved context?
+\item
+  How would you modify the system to support providing citations or references in the generated responses?
+\item
+  What techniques could you implement to reduce hallucinations in the generated answers?
+\item
+  How does the choice of context window size affect the tradeoff between comprehensive context and response quality?
+\item
+  \textbf{Additional Challenge:} Implement a document citation mechanism that links specific parts of the response to the source documents, allowing users to verify information.
+\end{enumerate}
 
-### Lab 5.2: HTML Templates and Static Files
+\subsubsection{Lab 5.2: HTML Templates and Static Files}\label{lab-5.2-html-templates-and-static-files}
 
-#### Learning Objectives:
+\paragraph{Learning Objectives:}\label{learning-objectives-6}
 
-- Create responsive HTML templates using Bootstrap
-- Implement client-side functionality with JavaScript
-- Design an intuitive user interface for RAG interactions
+\begin{itemize}
+\tightlist
+\item
+  Create responsive HTML templates using Bootstrap
+\item
+  Implement client-side functionality with JavaScript
+\item
+  Design an intuitive user interface for RAG interactions
+\end{itemize}
 
-#### Exercises:
+\paragraph{Exercises:}\label{exercises-5}
 
-1. Create the base template:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Create the base template:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 mkdir -p flask-app/templates
 touch flask-app/templates/base.html
-```
+\end{lstlisting}
 
-2. Add the following to `flask-app/templates/base.html`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!flask-app/templates/base.html!}:
+\end{enumerate}
 
-```html
+\begin{lstlisting}[language=HTML]
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2333,18 +2851,30 @@ touch flask-app/templates/base.html
     {% block extra_js %}{% endblock %}
 </body>
 </html>
-```
+\end{lstlisting}
 
-3. Create the main CSS file:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Create the main CSS file:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 mkdir -p flask-app/static/css
 touch flask-app/static/css/style.css
-```
+\end{lstlisting}
 
-4. Add the following to `flask-app/static/css/style.css`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!flask-app/static/css/style.css!}:
+\end{enumerate}
 
-```css
+\begin{lstlisting}
 /* Custom styles for the RAG system */
 
 /* Main container min-height for short pages */
@@ -2430,17 +2960,29 @@ footer {
     font-size: 0.8rem;
     vertical-align: super;
 }
-```
+\end{lstlisting}
 
-5. Create the index page:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  Create the index page:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch flask-app/templates/index.html
-```
+\end{lstlisting}
 
-6. Add the following to `flask-app/templates/index.html`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!flask-app/templates/index.html!}:
+\end{enumerate}
 
-```html
+\begin{lstlisting}[language=HTML]
 {% extends 'base.html' %}
 
 {% block title %}Home - Local RAG System{% endblock %}
@@ -2520,17 +3062,29 @@ touch flask-app/templates/index.html
     </div>
 </div>
 {% endblock %}
-```
+\end{lstlisting}
 
-7. Create the upload page:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{6}
+\tightlist
+\item
+  Create the upload page:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch flask-app/templates/upload.html
-```
+\end{lstlisting}
 
-8. Add the following to `flask-app/templates/upload.html`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{7}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!flask-app/templates/upload.html!}:
+\end{enumerate}
 
-```html
+\begin{lstlisting}[language=HTML]
 {% extends 'base.html' %}
 
 {% block title %}Upload Documents - Local RAG System{% endblock %}
@@ -2613,17 +3167,29 @@ touch flask-app/templates/upload.html
 </script>
 {% endblock %}
 {% endblock %}
-```
+\end{lstlisting}
 
-9. Create the documents page:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{8}
+\tightlist
+\item
+  Create the documents page:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch flask-app/templates/documents.html
-```
+\end{lstlisting}
 
-10. Add the following to `flask-app/templates/documents.html`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{9}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!flask-app/templates/documents.html!}:
+\end{enumerate}
 
-```html
+\begin{lstlisting}[language=HTML]
 {% extends 'base.html' %}
 
 {% block title %}Document Management - Local RAG System{% endblock %}
@@ -2840,17 +3406,29 @@ touch flask-app/templates/documents.html
 </script>
 {% endblock %}
 {% endblock %}
-```
+\end{lstlisting}
 
-11. Create the ask page:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{10}
+\tightlist
+\item
+  Create the ask page:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch flask-app/templates/ask.html
-```
+\end{lstlisting}
 
-12. Add the following to `flask-app/templates/ask.html`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{11}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!flask-app/templates/ask.html!}:
+\end{enumerate}
 
-```html
+\begin{lstlisting}[language=HTML]
 {% extends 'base.html' %}
 
 {% block title %}Ask Questions - Local RAG System{% endblock %}
@@ -3007,23 +3585,34 @@ touch flask-app/templates/ask.html
 </script>
 {% endblock %}
 {% endblock %}
-```
+\end{lstlisting}
 
-**Professor's Hint:** _Always implement robust error handling in your web interfaces, especially for operations that involve AI processing which can sometimes be unpredictable. The spinner provides important feedback to users during potentially lengthy operations, while the clear display of source documents helps users understand and trust the generated answers._
+\textbf{Professor's Hint:} \emph{Always implement robust error handling in your web interfaces, especially for operations that involve AI processing which can sometimes be unpredictable. The spinner provides important feedback to users during potentially lengthy operations, while the clear display of source documents helps users understand and trust the generated answers.}
 
-### Lab 5.3: Complete the Flask Application
+\subsubsection{Lab 5.3: Complete the Flask Application}\label{lab-5.3-complete-the-flask-application}
 
-#### Learning Objectives:
+\paragraph{Learning Objectives:}\label{learning-objectives-7}
 
-- Implement the remaining API endpoints for the Flask application
-- Add custom filters and utility functions
-- Test the complete web interface
+\begin{itemize}
+\tightlist
+\item
+  Implement the remaining API endpoints for the Flask application
+\item
+  Add custom filters and utility functions
+\item
+  Test the complete web interface
+\end{itemize}
 
-#### Exercises:
+\paragraph{Exercises:}\label{exercises-6}
 
-1. Add the following additional API endpoints to `app.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Add the following additional API endpoints to \passthrough{\lstinline!app.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 # Add these imports at the top
 import datetime
 import shutil
@@ -3107,11 +3696,17 @@ def api_reindex_all():
     except Exception as e:
         logger.error(f"Error reindexing all documents: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
-```
+\end{lstlisting}
 
-2. Create a modified version of the upload route to handle processing:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Create a modified version of the upload route to handle processing:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     """Handle file uploads."""
@@ -3159,18 +3754,30 @@ def upload():
             return redirect(request.url)
     
     return render_template('upload.html')
-```
+\end{lstlisting}
 
-3. Create a startup script to launch the entire system:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Create a startup script to launch the entire system:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch startup.sh
 chmod +x startup.sh
-```
+\end{lstlisting}
 
-4. Add the following to `startup.sh`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!startup.sh!}:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 #!/bin/bash
 
 # Exit on error
@@ -3288,17 +3895,29 @@ echo -e "${YELLOW}Press Ctrl+C to stop all services${NC}"
 # Wait for user interrupt
 trap "echo 'Stopping services...'; kill %1; docker-compose down; exit 0" INT
 wait
-```
+\end{lstlisting}
 
-5. Create a Dockerfile for the Flask app:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  Create a Dockerfile for the Flask app:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch flask-app/Dockerfile
-```
+\end{lstlisting}
 
-6. Add the following to `flask-app/Dockerfile`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!flask-app/Dockerfile!}:
+\end{enumerate}
 
-```dockerfile
+\begin{lstlisting}
 FROM python:3.10-slim
 
 WORKDIR /app
@@ -3311,11 +3930,17 @@ COPY . .
 EXPOSE 8000
 
 CMD ["python", "app.py"]
-```
+\end{lstlisting}
 
-7. Update the Docker Compose file to include the Flask app:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{6}
+\tightlist
+\item
+  Update the Docker Compose file to include the Flask app:
+\end{enumerate}
 
-```yaml
+\begin{lstlisting}
 version: '3.8'
 
 services:
@@ -3359,41 +3984,71 @@ services:
       - vector-db
       - mlflow
     restart: unless-stopped
-```
+\end{lstlisting}
 
-**Professor's Hint:** _The startup script is crucial for ensuring all components start in the correct order and with proper configuration. By handling dependency checks and proper error reporting, it makes the system much more robust and user-friendly._
+\textbf{Professor's Hint:} \emph{The startup script is crucial for ensuring all components start in the correct order and with proper configuration. By handling dependency checks and proper error reporting, it makes the system much more robust and user-friendly.}
 
-#### Checkpoint Questions:
+\paragraph{Checkpoint Questions:}\label{checkpoint-questions-6}
 
-1. How do Flask templates and static files work together to create a responsive user interface?
-2. What are the advantages of using AJAX for form submissions in a web application?
-3. How can we ensure the system continues running even when disconnected from the internet?
-4. What UX considerations are specific to RAG interfaces compared to traditional search interfaces?
-5. How would you implement progressive loading to improve perceived performance for long-running queries?
-6. What accessibility considerations should be taken into account for a RAG interface?
-7. How might you design the interface to help users formulate better queries and get more accurate results?
-8. **Additional Challenge:** Enhance the web interface with a history of past questions and answers, allowing users to revisit their previous queries.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  How do Flask templates and static files work together to create a responsive user interface?
+\item
+  What are the advantages of using AJAX for form submissions in a web application?
+\item
+  How can we ensure the system continues running even when disconnected from the internet?
+\item
+  What UX considerations are specific to RAG interfaces compared to traditional search interfaces?
+\item
+  How would you implement progressive loading to improve perceived performance for long-running queries?
+\item
+  What accessibility considerations should be taken into account for a RAG interface?
+\item
+  How might you design the interface to help users formulate better queries and get more accurate results?
+\item
+  \textbf{Additional Challenge:} Enhance the web interface with a history of past questions and answers, allowing users to revisit their previous queries.
+\end{enumerate}
 
-## Lab 6: Final Integration and Testing
+\subsection{Lab 6: Final Integration and Testing}\label{lab-6-final-integration-and-testing}
 
-### Lab 6.1: End-to-End System Integration
+\subsubsection{Lab 6.1: End-to-End System Integration}\label{lab-6.1-end-to-end-system-integration}
 
-#### Learning Objectives:
-- Integrate all components into a cohesive system
-- Test the complete RAG pipeline
-- Troubleshoot common integration issues
+\paragraph{Learning Objectives:}\label{learning-objectives-8}
 
-#### Exercises:
+\begin{itemize}
+\tightlist
+\item
+  Integrate all components into a cohesive system
+\item
+  Test the complete RAG pipeline
+\item
+  Troubleshoot common integration issues
+\end{itemize}
 
-1. Create an end-to-end integration test:
+\paragraph{Exercises:}\label{exercises-7}
 
-```bash
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Create an end-to-end integration test:
+\end{enumerate}
+
+\begin{lstlisting}[language=bash]
 touch app/tests/test_end_to_end.py
-```
+\end{lstlisting}
 
-2. Add the following to `app/tests/test_end_to_end.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/tests/test\_end\_to\_end.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import sys
 import time
@@ -3510,26 +4165,43 @@ def test_end_to_end_flow(check_system):
 if __name__ == "__main__":
     # Run tests
     pytest.main(["-xvs", __file__])
-```
+\end{lstlisting}
 
-3. Create a sample PDF for testing:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Create a sample PDF for testing:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 mkdir -p app/tests/data
-```
+\end{lstlisting}
 
-4. Copy a small PDF to this directory for testing purposes.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\item
+  Copy a small PDF to this directory for testing purposes.
+\item
+  Create a system status check script:
+\end{enumerate}
 
-5. Create a system status check script:
-
-```bash
+\begin{lstlisting}[language=bash]
 touch system_status.py
 chmod +x system_status.py
-```
+\end{lstlisting}
 
-6. Add the following to `system_status.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!system\_status.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 #!/usr/bin/env python3
 import os
 import sys
@@ -3701,23 +4373,34 @@ if __name__ == "__main__":
         stop_service(args.stop)
     else:
         check_system_status()
-```
+\end{lstlisting}
 
-**Professor's Hint:** _Integration testing is critical for complex systems with multiple components. The system status check script helps users quickly diagnose problems and restart specific components if needed. Make this script easily accessible and user-friendly to encourage its use._
+\textbf{Professor's Hint:} \emph{Integration testing is critical for complex systems with multiple components. The system status check script helps users quickly diagnose problems and restart specific components if needed. Make this script easily accessible and user-friendly to encourage its use.}
 
-#### Consistency Testing
+\paragraph{Consistency Testing}\label{consistency-testing}
 
 To ensure the system components work together consistently, let's add a few integration tests that specifically check for compatibility between components:
 
-1. Create a component integration test:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Create a component integration test:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/tests/test_component_integration.py
-```
+\end{lstlisting}
 
-2. Add the following to `app/tests/test_component_integration.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/tests/test\_component\_integration.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import sys
 import pytest
@@ -3832,32 +4515,49 @@ class TestComponentIntegration:
 if __name__ == "__main__":
     # Run tests
     pytest.main(["-xvs", __file__])
-```
+\end{lstlisting}
 
 This test specifically focuses on ensuring that the dimensions, data formats, and interfaces between components are consistent, which is critical for system integration.
 
-### Lab 6.3: System Consistency Verification
+\subsubsection{Lab 6.3: System Consistency Verification}\label{lab-6.3-system-consistency-verification}
 
-### Lab 6.2: Offline Mode Testing
+\subsubsection{Lab 6.2: Offline Mode Testing}\label{lab-6.2-offline-mode-testing}
 
-#### Learning Objectives:
+\paragraph{Learning Objectives:}\label{learning-objectives-9}
 
-- Test the system with internet connectivity disabled
-- Identify and fix dependencies on external services
-- Ensure data persistence across system restarts
+\begin{itemize}
+\tightlist
+\item
+  Test the system with internet connectivity disabled
+\item
+  Identify and fix dependencies on external services
+\item
+  Ensure data persistence across system restarts
+\end{itemize}
 
-#### Exercises:
+\paragraph{Exercises:}\label{exercises-8}
 
-1. Create an offline mode test script:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Create an offline mode test script:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch offline_test.sh
 chmod +x offline_test.sh
-```
+\end{lstlisting}
 
-2. Add the following to `offline_test.sh`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!offline\_test.sh!}:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 #!/bin/bash
 
 # Colors for output
@@ -3967,18 +4667,30 @@ docker network rm isolated-network
 
 echo -e "${GREEN}Network connectivity restored.${NC}"
 echo "Offline mode test completed."
-```
+\end{lstlisting}
 
-3. Create a backup and restore script:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Create a backup and restore script:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch backup_restore.sh
 chmod +x backup_restore.sh
-```
+\end{lstlisting}
 
-4. Add the following to `backup_restore.sh`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!backup\_restore.sh!}:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 #!/bin/bash
 
 # Colors for output
@@ -4100,62 +4812,122 @@ case "$1" in
         exit 1
         ;;
 esac
-```
+\end{lstlisting}
 
-**Professor's Hint:** _Regular backups are essential for any system that stores important data. The backup script not only creates archives of your data and models but also ensures data consistency by stopping services before backing up and restarting them afterward._
+\textbf{Professor's Hint:} \emph{Regular backups are essential for any system that stores important data. The backup script not only creates archives of your data and models but also ensures data consistency by stopping services before backing up and restarting them afterward.}
 
-#### Checkpoint Questions:
+\paragraph{Checkpoint Questions:}\label{checkpoint-questions-7}
 
-1. What happens if one of the Docker containers fails during system operation?
-2. How can we make the system resilient to temporary failures?
-3. Why is testing in offline mode important for a locally deployed RAG system?
-4. What failure modes are unique to RAG systems compared to traditional search or pure LLM applications?
-5. How would you implement graceful degradation if one component of the system fails?
-6. What would be the most critical components to monitor in a production RAG system?
-7. How could you design the system architecture to allow for horizontal scaling if processing demands increase?
-8. What security considerations should be addressed for a system that processes potentially sensitive documents?
-9. **Additional Challenge:** Implement a cron job to automatically create daily backups and retain only the 7 most recent backups.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  What happens if one of the Docker containers fails during system operation?
+\item
+  How can we make the system resilient to temporary failures?
+\item
+  Why is testing in offline mode important for a locally deployed RAG system?
+\item
+  What failure modes are unique to RAG systems compared to traditional search or pure LLM applications?
+\item
+  How would you implement graceful degradation if one component of the system fails?
+\item
+  What would be the most critical components to monitor in a production RAG system?
+\item
+  How could you design the system architecture to allow for horizontal scaling if processing demands increase?
+\item
+  What security considerations should be addressed for a system that processes potentially sensitive documents?
+\item
+  \textbf{Additional Challenge:} Implement a cron job to automatically create daily backups and retain only the 7 most recent backups.
+\end{enumerate}
 
-## Final Project Submission Guidelines
+\subsection{Final Project Submission Guidelines}\label{final-project-submission-guidelines}
 
-### Requirements
+\subsubsection{Requirements}\label{requirements}
 
-1. **Complete System**
-   - All components integrated and working together
-   - Fully functional in offline mode
-   - Clear documentation for usage
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Complete System}
 
-2. **Technical Report (3-5 pages)**
-   - System architecture overview
-   - Component descriptions
-   - Performance analysis
-   - Limitations and future improvements
+  \begin{itemize}
+  \tightlist
+  \item
+    All components integrated and working together
+  \item
+    Fully functional in offline mode
+  \item
+    Clear documentation for usage
+  \end{itemize}
+\item
+  \textbf{Technical Report (3-5 pages)}
 
-3. **Code Repository**
-   - Well-organized codebase
-   - Proper comments and docstrings
-   - README with setup and usage instructions
-   - Requirements file with all dependencies
+  \begin{itemize}
+  \tightlist
+  \item
+    System architecture overview
+  \item
+    Component descriptions
+  \item
+    Performance analysis
+  \item
+    Limitations and future improvements
+  \end{itemize}
+\item
+  \textbf{Code Repository}
 
-4. **Demonstration Video (5-7 minutes)**
-   - System walkthrough
-   - Example usage scenarios
-   - Performance demonstration
+  \begin{itemize}
+  \tightlist
+  \item
+    Well-organized codebase
+  \item
+    Proper comments and docstrings
+  \item
+    README with setup and usage instructions
+  \item
+    Requirements file with all dependencies
+  \end{itemize}
+\item
+  \textbf{Demonstration Video (5-7 minutes)}
 
-### Self-Assessment Questions
+  \begin{itemize}
+  \tightlist
+  \item
+    System walkthrough
+  \item
+    Example usage scenarios
+  \item
+    Performance demonstration
+  \end{itemize}
+\end{enumerate}
+
+\subsubsection{Self-Assessment Questions}\label{self-assessment-questions}
 
 Before submitting your project, ask yourself:
 
-1. Can the system function completely offline after initial setup?
-2. Does the RAG system correctly extract text from various PDF formats?
-3. Is the vector search accurate and relevant to user queries?
-4. Does the LLM generate coherent and factual responses based on the retrieved context?
-5. Is the web interface intuitive and responsive?
-6. Does the system handle errors gracefully?
-7. Is there proper documentation for all components?
-8. Can another person set up and use your system based on your documentation?
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Can the system function completely offline after initial setup?
+\item
+  Does the RAG system correctly extract text from various PDF formats?
+\item
+  Is the vector search accurate and relevant to user queries?
+\item
+  Does the LLM generate coherent and factual responses based on the retrieved context?
+\item
+  Is the web interface intuitive and responsive?
+\item
+  Does the system handle errors gracefully?
+\item
+  Is there proper documentation for all components?
+\item
+  Can another person set up and use your system based on your documentation?
+\end{enumerate}
 
-## Conclusion
+\subsection{Conclusion}\label{conclusion}
 
 Building a local RAG system requires integration of multiple complex components, from PDF processing and vector embeddings to large language models and web interfaces. This project has given you hands-on experience with the entire pipeline, providing a foundation for developing more advanced AI applications.
 
@@ -4169,30 +4941,47 @@ Remember that local AI systems have unique advantages in terms of privacy, data 
 
 Good luck with your final project!
 
-**Professor's Final Hint:** _The true test of any system is how it performs with real-world data and users. Take time to test your system with diverse PDFs and questions, and iterate based on what you learn. The most valuable systems are those that solve real problems elegantly and reliably._
+\textbf{Professor's Final Hint:} \emph{The true test of any system is how it performs with real-world data and users. Take time to test your system with diverse PDFs and questions, and iterate based on what you learn. The most valuable systems are those that solve real problems elegantly and reliably.}
 
-## Lab 4: MLflow Integration and Model Serving
+\subsection{Lab 4: MLflow Integration and Model Serving}\label{lab-4-mlflow-integration-and-model-serving}
 
-### Lab 4.1: MLflow Model Wrapper and Logging
+\subsubsection{Lab 4.1: MLflow Model Wrapper and Logging}\label{lab-4.1-mlflow-model-wrapper-and-logging}
 
-#### Learning Objectives:
+\paragraph{Learning Objectives:}\label{learning-objectives-10}
 
-- Create an MLflow model wrapper for the RAG system
-- Log models and artifacts to MLflow
-- Understand model versioning and management
+\begin{itemize}
+\tightlist
+\item
+  Create an MLflow model wrapper for the RAG system
+\item
+  Log models and artifacts to MLflow
+\item
+  Understand model versioning and management
+\end{itemize}
 
-#### Exercises:
+\paragraph{Exercises:}\label{exercises-9}
 
-1. Create an MLflow model wrapper:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Create an MLflow model wrapper:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 mkdir -p app/models
 touch app/models/rag_model.py
-```
+\end{lstlisting}
 
-2. Add the following to `app/models/rag_model.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/models/rag\_model.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import sys
 import pandas as pd
@@ -4303,17 +5092,29 @@ if __name__ == "__main__":
     # Test prediction
     result = model.predict(None, "What is retrieval-augmented generation?")
     print(result['text'])
-```
+\end{lstlisting}
 
-3. Create a script to log the model to MLflow:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Create a script to log the model to MLflow:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/scripts/log_model.py
-```
+\end{lstlisting}
 
-4. Add the following to `app/scripts/log_model.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/scripts/log\_model.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import sys
 import mlflow
@@ -4368,19 +5169,31 @@ if __name__ == "__main__":
     model_info = log_model()
     print(f"Model logged: {model_info.model_uri}")
     print(f"Run ID: {model_info.run_id}")
-```
+\end{lstlisting}
 
-**Professor's Hint:** _MLflow's Python Function (PyFunc) model format is very flexible but doesn't handle complex dependencies well. By including the `app_dir` as an artifact, we ensure that all necessary code is available, but this approach requires the filesystem structure to be preserved. For production, consider packaging your RAG components as a Python package._
+\textbf{Professor's Hint:} \emph{MLflow's Python Function (PyFunc) model format is very flexible but doesn't handle complex dependencies well. By including the \passthrough{\lstinline!app\_dir!} as an artifact, we ensure that all necessary code is available, but this approach requires the filesystem structure to be preserved. For production, consider packaging your RAG components as a Python package.}
 
-5. Create a script to deploy the model:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  Create a script to deploy the model:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/scripts/deploy_model.py
-```
+\end{lstlisting}
 
-6. Add the following to `app/scripts/deploy_model.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/scripts/deploy\_model.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import sys
 import mlflow
@@ -4431,39 +5244,68 @@ if __name__ == "__main__":
     
     # Deploy model
     deploy_model(args.run_id, args.port)
-```
+\end{lstlisting}
 
-#### Checkpoint Questions:
+\paragraph{Checkpoint Questions:}\label{checkpoint-questions-8}
 
-1. Why do we use MLflow for model versioning and deployment?
-2. What are the advantages of packaging a model with MLflow compared to directly running the application?
-3. How does the MLflow model server handle inference requests?
-4. How would you design an A/B testing framework to evaluate changes to different components of the RAG pipeline?
-5. What monitoring metrics would be most important for understanding RAG system performance in production?
-6. How does the choice of serialization format for model artifacts affect the tradeoff between load time and storage efficiency?
-7. What strategies could you implement to handle model updates without service interruption?
-8. **Additional Challenge:** Create a system for A/B testing different model configurations by deploying multiple versions of the model and comparing their performance.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Why do we use MLflow for model versioning and deployment?
+\item
+  What are the advantages of packaging a model with MLflow compared to directly running the application?
+\item
+  How does the MLflow model server handle inference requests?
+\item
+  How would you design an A/B testing framework to evaluate changes to different components of the RAG pipeline?
+\item
+  What monitoring metrics would be most important for understanding RAG system performance in production?
+\item
+  How does the choice of serialization format for model artifacts affect the tradeoff between load time and storage efficiency?
+\item
+  What strategies could you implement to handle model updates without service interruption?
+\item
+  \textbf{Additional Challenge:} Create a system for A/B testing different model configurations by deploying multiple versions of the model and comparing their performance.
+\end{enumerate}
 
-### Lab 4.2: MLflow Client and Integration Testing
+\subsubsection{Lab 4.2: MLflow Client and Integration Testing}\label{lab-4.2-mlflow-client-and-integration-testing}
 
-#### Learning Objectives:
+\paragraph{Learning Objectives:}\label{learning-objectives-11}
 
-- Create a client to interact with the MLflow serving endpoint
-- Implement integration testing for the end-to-end system
-- Test system performance and reliability
+\begin{itemize}
+\tightlist
+\item
+  Create a client to interact with the MLflow serving endpoint
+\item
+  Implement integration testing for the end-to-end system
+\item
+  Test system performance and reliability
+\end{itemize}
 
-#### Exercises:
+\paragraph{Exercises:}\label{exercises-10}
 
-1. Create an MLflow client utility:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Create an MLflow client utility:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 mkdir -p app/clients
 touch app/clients/mlflow_client.py
-```
+\end{lstlisting}
 
-2. Add the following to `app/clients/mlflow_client.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/clients/mlflow\_client.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import json
 import requests
@@ -4560,17 +5402,29 @@ if __name__ == "__main__":
         print(f"Response: {response['text']}")
     else:
         print("MLflow endpoint is not available. Make sure the model is deployed.")
-```
+\end{lstlisting}
 
-3. Create an integration test script:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Create an integration test script:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/tests/test_integration.py
-```
+\end{lstlisting}
 
-4. Add the following to `app/tests/test_integration.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/tests/test\_integration.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import sys
 import time
@@ -4641,19 +5495,31 @@ def test_multiple_queries(mlflow_client):
 if __name__ == "__main__":
     # Run tests
     pytest.main(["-xvs", __file__])
-```
+\end{lstlisting}
 
-**Professor's Hint:** _Integration tests are essential for ensuring the reliability of complex systems like this RAG application. The tests should cover both "happy path" scenarios and edge cases. Pay special attention to response timingif the system is too slow, users will find it frustrating regardless of accuracy._
+\textbf{Professor's Hint:} \emph{Integration tests are essential for ensuring the reliability of complex systems like this RAG application. The tests should cover both ``happy path'' scenarios and edge cases. Pay special attention to response timingif the system is too slow, users will find it frustrating regardless of accuracy.}
 
-5. Create a load testing script (optional):
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  Create a load testing script (optional):
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch app/tests/load_test.py
-```
+\end{lstlisting}
 
-6. Add the following to `app/tests/load_test.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app/tests/load\_test.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 import sys
 import time
@@ -4779,28 +5645,47 @@ if __name__ == "__main__":
     
     # Run load test
     run_load_test(args.workers, args.queries)
-```
+\end{lstlisting}
 
-#### Checkpoint Questions:
+\paragraph{Checkpoint Questions:}\label{checkpoint-questions-9}
 
-1. What are the key metrics to monitor in a RAG system under load?
-2. How does concurrent access impact the performance of different components (vector DB, embedding model, LLM)?
-3. What options exist for scaling the system if it becomes performance-limited?
-4. **Additional Challenge:** Create a benchmark suite that evaluates the system's accuracy using a set of predefined questions with known answers.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  What are the key metrics to monitor in a RAG system under load?
+\item
+  How does concurrent access impact the performance of different components (vector DB, embedding model, LLM)?
+\item
+  What options exist for scaling the system if it becomes performance-limited?
+\item
+  \textbf{Additional Challenge:} Create a benchmark suite that evaluates the system's accuracy using a set of predefined questions with known answers.
+\end{enumerate}
 
-### Lab 4.3: Creating an MLflow Client for the Flask App
+\subsubsection{Lab 4.3: Creating an MLflow Client for the Flask App}\label{lab-4.3-creating-an-mlflow-client-for-the-flask-app}
 
-#### Learning Objectives:
+\paragraph{Learning Objectives:}\label{learning-objectives-12}
 
-- Create a client to interact with the MLflow serving endpoint from Flask
-- Implement error handling and logging for MLflow interactions
-- Design a clean API abstraction for your web application
+\begin{itemize}
+\tightlist
+\item
+  Create a client to interact with the MLflow serving endpoint from Flask
+\item
+  Implement error handling and logging for MLflow interactions
+\item
+  Design a clean API abstraction for your web application
+\end{itemize}
 
-#### Exercises:
+\paragraph{Exercises:}\label{exercises-11}
 
-1. Create the MLflow client for the Flask app:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Create the MLflow client for the Flask app:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 # flask-app/utils/mlflow_client.py
 import requests
 import json
@@ -4883,17 +5768,29 @@ def create_mlflow_client(host: str = "localhost", port: int = 5001) -> MLflowCli
     """
     endpoint_url = f"http://{host}:{port}"
     return MLflowClient(endpoint_url)
-```
+\end{lstlisting}
 
-2. Create a utility for pipeline triggering:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Create a utility for pipeline triggering:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 touch flask-app/utils/pipeline_trigger.py
-```
+\end{lstlisting}
 
-3. Add the following code to `flask-app/utils/pipeline_trigger.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Add the following code to \passthrough{\lstinline!flask-app/utils/pipeline\_trigger.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import subprocess
 import logging
 import threading
@@ -4958,33 +5855,50 @@ def run_pipeline_async(pdf_dir, rebuild=False):
         'status': 'started',
         'message': 'Pipeline started in the background'
     }
-```
+\end{lstlisting}
 
-**Professor's Hint:** _When triggering long-running processes from a web application, it's best to run them asynchronously to avoid blocking the web server. This keeps the user interface responsive while the processing happens in the background._
+\textbf{Professor's Hint:} \emph{When triggering long-running processes from a web application, it's best to run them asynchronously to avoid blocking the web server. This keeps the user interface responsive while the processing happens in the background.}
 
-## Lab 5: Flask Web Interface
+\subsection{Lab 5: Flask Web Interface}\label{lab-5-flask-web-interface}
 
-### Lab 5.1: Basic Flask Application Setup
+\subsubsection{Lab 5.1: Basic Flask Application Setup}\label{lab-5.1-basic-flask-application-setup}
 
-#### Learning Objectives:
+\paragraph{Learning Objectives:}\label{learning-objectives-13}
 
-- Set up a Flask web application
-- Create a user interface for the RAG system
-- Implement file upload and document management
+\begin{itemize}
+\tightlist
+\item
+  Set up a Flask web application
+\item
+  Create a user interface for the RAG system
+\item
+  Implement file upload and document management
+\end{itemize}
 
-#### Exercises:
+\paragraph{Exercises:}\label{exercises-12}
 
-1. Create a basic Flask application structure:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Create a basic Flask application structure:
+\end{enumerate}
 
-```bash
+\begin{lstlisting}[language=bash]
 cd flask-app
 touch app.py
 touch config.py
-```
+\end{lstlisting}
 
-2. Add the following to `config.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!config.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 from pathlib import Path
 
@@ -5003,11 +5917,17 @@ ALLOWED_EXTENSIONS = {'pdf'}
 # MLflow settings
 MLFLOW_HOST = "localhost"
 MLFLOW_PORT = 5001
-```
+\end{lstlisting}
 
-3. Add the following to `app.py`:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Add the following to \passthrough{\lstinline!app.py!}:
+\end{enumerate}
 
-```python
+\begin{lstlisting}[language=Python]
 import os
 from flask import Flask, request, render_template, flash, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
@@ -5149,32 +6069,50 @@ def health():
 
 if __name__ == '__main__':
     app.run(debug=DEBUG, host='0.0.0.0', port=8000)
-```
+\end{lstlisting}
 
-## Appendix: Diagrams
+\subsection{Appendix: Diagrams}\label{appendix-diagrams}
 
-### Class Diagram
+\subsubsection{Class Diagram}\label{class-diagram}
 
 The class diagram is shown below:
 
-![Class Diagram](docs/puml/svg/class.pdf)
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{docs/puml/svg/class.pdf}}
+\caption{Class Diagram}
+\end{figure}
 
-### Use Case Diagram
+\subsubsection{Use Case Diagram}\label{use-case-diagram}
 
 The use case diagram is shown below:
 
-![Use Case Diagram](docs/puml/svg/usecase.pdf)
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{docs/puml/svg/usecase.pdf}}
+\caption{Use Case Diagram}
+\end{figure}
 
-### Component Diagram
+\subsubsection{Component Diagram}\label{component-diagram}
 
 The component diagram is shown below:
 
-![Component Diagram](docs/puml/svg/component.pdf)
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{docs/puml/svg/component.pdf}}
+\caption{Component Diagram}
+\end{figure}
 
-### Deployment Diagram
+\subsubsection{Deployment Diagram}\label{deployment-diagram}
 
 The deployment diagram is shown below:
 
-![Deployment Diagram](docs/puml/svg/deployment.pdf)
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{docs/puml/svg/deployment.pdf}}
+\caption{Deployment Diagram}
+\end{figure}
 
 The is it for now :).
+
+\end{document}

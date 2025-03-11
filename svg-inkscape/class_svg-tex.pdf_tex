@@ -1,0 +1,229 @@
+%% Creator: Inkscape 1.4 (e7c3feb1, 2024-10-09), www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'class_svg-tex.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{2063.60650635bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.46800345)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{class_svg-tex.pdf}}%
+    \put(0.00172635,0.397036){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\textbf{Flask App}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{class_svg-tex.pdf}}%
+    \put(0.40114843,0.46208473){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\textbf{RAG Pipeline}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{class_svg-tex.pdf}}%
+    \put(0.74351021,0.22455034){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\textbf{Utilities}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{class_svg-tex.pdf}}%
+    \put(0.14596968,0.38222365){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}FlaskApp\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{class_svg-tex.pdf}}%
+    \put(0.13941612,0.36905101){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}index()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{class_svg-tex.pdf}}%
+    \put(0.13941612,0.36305852){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}upload()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=7]{class_svg-tex.pdf}}%
+    \put(0.13941612,0.35706598){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}documents()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=8]{class_svg-tex.pdf}}%
+    \put(0.13941612,0.35107345){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}ask()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=9]{class_svg-tex.pdf}}%
+    \put(0.13941612,0.34508093){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}api_ask()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=10]{class_svg-tex.pdf}}%
+    \put(0.13941612,0.33908839){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}health()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=11]{class_svg-tex.pdf}}%
+    \put(0.02910137,0.29484507){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}MLflowClient\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=12]{class_svg-tex.pdf}}%
+    \put(0.01333103,0.28167244){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}predict(query: str): dict\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=13]{class_svg-tex.pdf}}%
+    \put(0.01333103,0.27567994){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}is_alive(): bool\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=14]{class_svg-tex.pdf}}%
+    \put(0.13945322,0.29185032){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}PipelineTrigger\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=15]{class_svg-tex.pdf}}%
+    \put(0.09232138,0.27867769){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}run_pipeline_async(pdf_dir: str, rebuild: bool): dict\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=16]{class_svg-tex.pdf}}%
+    \put(0.46230658,0.44727239){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}RAGModel\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=17]{class_svg-tex.pdf}}%
+    \put(0.41625666,0.43409975){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}load_context(context: Any)\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=18]{class_svg-tex.pdf}}%
+    \put(0.41625666,0.42810725){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}predict(context: Any, model_input: Any): dict\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=19]{class_svg-tex.pdf}}%
+    \put(0.58120901,0.3672426){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}SearchPipeline\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=20]{class_svg-tex.pdf}}%
+    \put(0.56245096,0.35406996){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}search(query: str): list[dict]\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=21]{class_svg-tex.pdf}}%
+    \put(0.71996886,0.29185032){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}QueryProcessor\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=22]{class_svg-tex.pdf}}%
+    \put(0.68960096,0.27867769){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}process_query(query: str): np.ndarray\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=23]{class_svg-tex.pdf}}%
+    \put(0.4596596,0.29185032){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Reranker\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=24]{class_svg-tex.pdf}}%
+    \put(0.41272402,0.27867769){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}rerank(query: str, results: list[dict]): list[dict]\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=25]{class_svg-tex.pdf}}%
+    \put(0.45818725,0.37023735){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}LLMProcessor\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=26]{class_svg-tex.pdf}}%
+    \put(0.41278583,0.35706471){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}create_prompt(query: str, context: list[dict]): str\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=27]{class_svg-tex.pdf}}%
+    \put(0.41278583,0.35107222){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}generate_response(prompt: str): dict\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=28]{class_svg-tex.pdf}}%
+    \put(0.59063972,0.30083823){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}VectorDBClient\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=29]{class_svg-tex.pdf}}%
+    \put(0.54406811,0.28766558){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}create_collection()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=30]{class_svg-tex.pdf}}%
+    \put(0.54406811,0.28167308){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}upload_vectors(df: pd.DataFrame)\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=31]{class_svg-tex.pdf}}%
+    \put(0.54406811,0.27568056){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}search(query_vector: list[float], limit: int): list[dict]\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=32]{class_svg-tex.pdf}}%
+    \put(0.54406811,0.26968803){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}count_vectors(): int\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=33]{class_svg-tex.pdf}}%
+    \put(0.82234167,0.07393086){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}PDFIngestion\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=34]{class_svg-tex.pdf}}%
+    \put(0.77563839,0.06075824){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}scan_directory(directory_path: str): list[dict]\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=35]{class_svg-tex.pdf}}%
+    \put(0.77563839,0.05476572){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}extract_text_from_pdf(pdf_path: str): str\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=36]{class_svg-tex.pdf}}%
+    \put(0.77563839,0.04877319){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}process_pdfs(directory_path: str): pd.DataFrame\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=37]{class_svg-tex.pdf}}%
+    \put(0.82103822,0.13134732){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}TextChunking\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=38]{class_svg-tex.pdf}}%
+    \put(0.75515488,0.11817468){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}chunk_text(text: str, chunk_size: int, chunk_overlap: int): list[str]\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=39]{class_svg-tex.pdf}}%
+    \put(0.75515488,0.1121822){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}process_chunks(df: pd.DataFrame): pd.DataFrame\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=40]{class_svg-tex.pdf}}%
+    \put(0.81233088,0.209738){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}EmbeddingGenerator\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=41]{class_svg-tex.pdf}}%
+    \put(0.76980523,0.19656535){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}generate_embeddings(texts: list[str]): np.ndarray\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=42]{class_svg-tex.pdf}}%
+    \put(0.76980523,0.19057288){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}process_dataframe(df: pd.DataFrame): pd.DataFrame\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=43]{class_svg-tex.pdf}}%
+    \put(0.30487279,0.28885193){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Llama Model\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=44]{class_svg-tex.pdf}}%
+    \put(0.57031584,0.20374485){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Qdrant\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=45]{class_svg-tex.pdf}}%
+    \put(0.80659275,0.00979801){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}PDFs\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=46]{class_svg-tex.pdf}}%
+    \put(0.36047933,0.28885193){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Llama Model\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=47]{class_svg-tex.pdf}}%
+    \put(0.69079302,0.20374485){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Embedding Model\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=48]{class_svg-tex.pdf}}%
+    \put(0.45016576,0.20374485){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Reranker Model\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=49]{class_svg-tex.pdf}}%
+    \put(0.61174815,0.20374485){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Qdrant\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=50]{class_svg-tex.pdf}}%
+    \put(0.84287868,0.00979801){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}PDF DataFrame\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=51]{class_svg-tex.pdf}}%
+    \put(0.93931061,0.06494296){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Chunks DataFrame\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=52]{class_svg-tex.pdf}}%
+    \put(0.94032463,0.12535418){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Embeddings DataFrame\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=53]{class_svg-tex.pdf}}%
+    \put(0.25578851,0.23071221){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Settings\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=54]{class_svg-tex.pdf}}%
+    \put(0.22474852,0.2204471){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}BASE_DIR: str\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=55]{class_svg-tex.pdf}}%
+    \put(0.22474852,0.21445459){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}VECTOR_DB_HOST: str\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=56]{class_svg-tex.pdf}}%
+    \put(0.22474852,0.20846207){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}VECTOR_DB_PORT: int\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=57]{class_svg-tex.pdf}}%
+    \put(0.22474852,0.20246955){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}EMBEDDING_MODEL_PATH: str\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=58]{class_svg-tex.pdf}}%
+    \put(0.22474852,0.196477){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}RERANKER_MODEL_PATH: str\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=59]{class_svg-tex.pdf}}%
+    \put(0.22474852,0.19048448){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}LLM_MODEL_PATH: str\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=60]{class_svg-tex.pdf}}%
+    \put(0.22474852,0.18449198){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}MLFLOW_TRACKING_URI: str\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=61]{class_svg-tex.pdf}}%
+    \put(0.22474852,0.17849945){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}FLASK_SECRET_KEY: str\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=62]{class_svg-tex.pdf}}%
+    \put(0.22474852,0.17250693){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}PDF_UPLOAD_FOLDER: str\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=63]{class_svg-tex.pdf}}%
+    \put(0.09603939,0.32072668){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=64]{class_svg-tex.pdf}}%
+    \put(0.15255452,0.32072668){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=65]{class_svg-tex.pdf}}%
+    \put(0.53386997,0.40974438){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=66]{class_svg-tex.pdf}}%
+    \put(0.4694754,0.40974438){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=67]{class_svg-tex.pdf}}%
+    \put(0.67195223,0.32072668){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=68]{class_svg-tex.pdf}}%
+    \put(0.52926151,0.32072668){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=69]{class_svg-tex.pdf}}%
+    \put(0.5991077,0.32072668){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=70]{class_svg-tex.pdf}}%
+    \put(0.77736474,0.25060066){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=71]{class_svg-tex.pdf}}%
+    \put(0.37396299,0.32072668){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=72]{class_svg-tex.pdf}}%
+    \put(0.59250759,0.25060066){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=73]{class_svg-tex.pdf}}%
+    \put(0.81908055,0.02968644){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}processes\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=74]{class_svg-tex.pdf}}%
+    \put(0.83291679,0.09381934){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=75]{class_svg-tex.pdf}}%
+    \put(0.83291679,0.15123578){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=76]{class_svg-tex.pdf}}%
+    \put(0.7241424,0.25060066){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=77]{class_svg-tex.pdf}}%
+    \put(0.46511411,0.25060066){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=78]{class_svg-tex.pdf}}%
+    \put(0.42059254,0.32072668){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=79]{class_svg-tex.pdf}}%
+    \put(0.60902234,0.25060066){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=80]{class_svg-tex.pdf}}%
+    \put(0.84798869,0.02968644){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}produces\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=81]{class_svg-tex.pdf}}%
+    \put(0.8986452,0.09381934){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}produces\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=82]{class_svg-tex.pdf}}%
+    \put(0.91864175,0.15123578){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}produces\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=83]{class_svg-tex.pdf}}%
+    \put(0.24907365,0.2860253){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=84]{class_svg-tex.pdf}}%
+    \put(0.30043519,0.32072668){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=85]{class_svg-tex.pdf}}%
+    \put(0.51589049,0.25060066){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=86]{class_svg-tex.pdf}}%
+    \put(0.09770394,0.25060066){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}uses\end{tabular}}}}%
+  \end{picture}%
+\endgroup%

@@ -1,0 +1,69 @@
+@startuml
+title Local RAG System Deployment Diagram
+
+' Define the user
+actor User
+
+' Define the main physical node: MacMini
+node "MacMini (M2 Pro)" as macmini {
+
+  ' Host filesystem artifacts with details
+  artifact "data/pdfs\n(PDF Storage)" as host_pdfs
+  artifact "data/vectors\n(Vector Storage)" as host_vectors
+  artifact "mlflow/artifacts\n(Model Artifacts)" as host_mlflow_artifacts
+  artifact "mlflow/backend\n(Tracking DB)" as host_mlflow_backend
+  artifact "models" as host_models {
+    artifact "embedding/all-MiniLM-L6-v2" as embedding_model
+    artifact "reranker/ms-marco-MiniLM-L-6-v2" as reranker_model
+    artifact "llm/llama-2-7b-chat-q4_0.gguf" as llama_model
+  }
+  artifact "app\n(RAG Code)" as host_app
+  artifact "flask-app\n(Flask Code)" as host_flask_app
+
+  ' Define the Docker network
+  cloud "rag-network" as network
+
+  ' Docker containers with components
+  node "vector-db" as vector_db {
+    component "Qdrant\n(Vector DB)" as qdrant
+  }
+
+  node "mlflow" as mlflow_node {
+    component "MLflow Server\n(Serves RAG Model)" as mlflow_server
+  }
+
+  node "flask-app" as flask_app_node {
+    component "Flask App\n(Web Interface)" as flask_app
+  }
+}
+
+' Connections
+User --> macmini : "HTTP 8000"
+macmini --> flask_app_node : "forwards to 8000"
+flask_app --> mlflow_server : "HTTP 5000"
+mlflow_server --> qdrant : "TCP 6333"
+
+' Connect containers to the network
+vector_db -- network
+mlflow_node -- network
+flask_app_node -- network
+
+' Volume mounts
+qdrant ..> host_vectors : "«mount» /qdrant/storage"
+mlflow_server ..> host_mlflow_artifacts : "«mount» /mlflow/artifacts"
+mlflow_server ..> host_mlflow_backend : "«mount» /mlflow/backend"
+mlflow_server ..> host_models : "«mount» /models"
+flask_app ..> host_flask_app : "«mount» /app"
+flask_app ..> host_pdfs : "«mount» /data"
+flask_app ..> host_app : "«mount» /rag_app"
+flask_app ..> host_models : "«mount» /models"
+
+' Note about ports
+note left of macmini
+  Exposed Ports:
+  - 8000: Flask App
+  - 5001: MLflow (maps to 5000)
+  - 6333, 6334: Qdrant
+end note
+
+@enduml
