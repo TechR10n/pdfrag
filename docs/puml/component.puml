@@ -1,43 +1,172 @@
 @startuml
-' Define packages and components
-package "Web Interface" {
-  component "Flask Application" <<Web App>> as flask
+' Size and rendering adjustments
+skinparam shadowing false
+skinparam dpi 300
+skinparam defaultFontSize 9
+skinparam defaultFontName "Helvetica Neue"
+skinparam padding 1
+skinparam nodeSeparation 10
+skinparam arrowThickness 1
+skinparam scale 0.75
+left to right direction
+skinparam linetype polyline
+
+' Package styling
+skinparam packageBackgroundColor #F5F5F5
+
+package "Docker Compose System" {
+  ' Services with colors
+  component "Vector Database Service" as vector <<Service>> #LightBlue
+  component "MLflow Tracking Server" as mlflow <<Service>> #LightGreen
+  component "Flask Web Application" as flask <<Service>> #LightCoral
+  component "Model Serving API" as model <<Service>> #LightGoldenRodYellow
+
+  ' Network with wrapped label
+  cloud "rag-network" as network <<Shared Docker\nNetwork>> #LightGray
+
+  ' Volumes with wrapped labels
+  database "vector-db" as vdata <<Vector DB Data>> #PowderBlue
+  database "mlflow-docker-data" as mdata <<MLflow Data>> #PowderBlue
+  database "model-cache" as cache <<Model Cache>> #PowderBlue
+
+  ' Host directories with wrapped labels
+  folder "./data" as data_folder <<Host Directory\nfor Data>> #Wheat
+  folder "./app" as app_folder <<Host Directory\nfor App Code>> #Wheat
+  folder "./models" as models_folder <<Host Directory\nfor Model Files>> #Wheat
+
+  ' Dependencies (red arrows)
+  flask -[#Red]-> vector : "depends_on"
+  flask -[#Red]-> mlflow : "depends_on"
+  flask -[#Red]-> model : "depends_on"
+
+  ' Network connections (gray dashed arrows)
+  vector -[#Gray,dashed]-> network
+  mlflow -[#Gray,dashed]-> network
+  flask -[#Gray,dashed]-> network
+  model -[#Gray,dashed]-> network
+
+  ' Volume mappings (blue arrows)
+  vector -[#Blue]-> vdata : "./data/vectors:/qdrant/storage"
+  mlflow -[#Blue]-> mdata : "/mlflow"
+  flask -[#Blue]-> data_folder : "./data:/flask_app/data"
+  flask -[#Blue]-> app_folder : "./app:/flask_app/app"
+  flask -[#Blue]-> models_folder : "./models:/flask_app/models"
+  model -[#Blue]-> app_folder : "./app:/model_server/app"
+  model -[#Blue]-> models_folder : "./models:/model_server/models"
+  model -[#Blue]-> cache : "/model_server/.cache"
+
+  ' Communication paths (purple arrows)
+  flask -[#Purple]-> mlflow : "HTTP:5000"
+  flask -[#Purple]-> model : "HTTP:5000"
+  flask -[#Purple]-> vector : "HTTP:6333"
 }
 
-package "Model Serving" {
-  component "MLflow Server" <<Model Serving>> as mlflow {
-    component "RAG Model" <<Python Class>> as rag_model
-  }
-}
+' Notes with matching background colors
+note right of vector #LightBlue
+  **Service Name**: vector-db
+  **Purpose**: Stores and queries vector embeddings
+  **Image**: qdrant/qdrant:latest
+  **Ports**:
+  - External 6333 -> Internal 6333 (REST API)
+  - External 6334 -> Internal 6334 (gRPC API)
+  **Volume Mapping**:
+  - Named volume "vector-data" at /qdrant/storage
+  **Environment**:
+  - QDRANT_ALLOW_CORS=true
+  **Healthcheck**:
+  - Test: curl -f http://localhost:6333/healthz
+  - Interval: 30s, Timeout: 10s, Retries: 3
+  **Network**: rag-network
+end note
 
-package "Models" {
-  component "Embedding Model" <<Sentence Transformers>> as embedding_model
-  component "Reranker Model" <<CrossEncoder>> as reranker_model
-  component "LLM Model" <<Llama>> as llm_model
-}
+note right of mlflow #LightGreen
+  **Service Name**:
+    mlflow
+  **Purpose**:
+    Tracks ML experiments and artifacts
+  **Image**:
+    ghcr.io/mlflow/mlflow:latest
+  **Ports**:
+  - External 5001 -> Internal 5000 (UI and API)
+  **Volume Mapping**:
+  - Named volume "mlflow-docker-data" at /mlflow
+  **Environment**:
+  - MLFLOW_TRACKING_URI=sqlite:///mlflow/mlflow.db
+  **Command**:
+  - mlflow server --backend-store-uri sqlite:///mlflow/mlflow.db
+  - --default-artifact-root /mlflow/artifacts
+  - --host 0.0.0.0 --port 5000
+  **Healthcheck**:
+  - Test: echo "healthy"
+  - Interval: 30s, Timeout: 10s, Retries: 3
+  **Network**: rag-network
+end note
 
-package "Database" {
-  component "Vector Database" <<Qdrant>> as vector_db
-}
+note left of flask #LightCoral
+  **Service Name**: flask-app
+  **Purpose**: Web app interfacing with ML services
+  **Build**: Custom image from flask-app/Dockerfile
+  **Base Image**: python:3.10-slim
+  **Ports**:
+  - External 8000 -> Internal 8000 (Web Server)
+  **Volume Mappings**:
+  - Host ./data -> /flask_app/data
+  - Host ./app -> /flask_app/app
+  - Host ./models -> /flask_app/models
+  **Environment Variables**:
+  - FLASK_APP=app.py
+  - FLASK_DEBUG=1
+  - MLFLOW_HOST=model-server
+  - MLFLOW_PORT=5000
+  - CMAKE_ARGS=-DLLAMA_CUBLAS=0
+  - FORCE_CMAKE=1
+  **Dockerfile Details**:
+  - Installs: build-essential, cmake, git, etc.
+  - Copies: requirements.txt, app files
+  - Installs: huggingface_hub, requests-toolbelt
+  - Command: python app.py
+  **Network**: rag-network
+end note
 
-package "Data Processing" {
-  component "Data Ingestion Pipeline" <<Pipeline>> as ingestion_pipeline
-}
+note left of model #LightGoldenRodYellow
+  **Service Name**: model-server
+  **Purpose**: Serves ML models for inference
+  **Build**: Custom image from Dockerfile.model-server
+  **Base Image**: python:3.10-slim
+  **Ports**:
+  - External 5002 -> Internal 5000 (API)
+  **Volume Mappings**:
+  - Host ./app -> /model_server/app
+  - Host ./models -> /model_server/models
+  - Named volume "model-cache" -> /model_server/.cache
+  **Environment Variables**:
+  - PORT=5000
+  - HF_TOKEN=${HF_TOKEN}
+  - HF_MODEL_ID=meta-llama/Llama-3.2-1B-Instruct
+  - MODEL_PATH=/model_server/models/llm/Llama-3.2-1B-Instruct
+  - EMBEDDING_MODEL_PATH=/model_server/models/embedding/all-MiniLM-L6-v2
+  - RERANKER_MODEL_PATH=/model_server/models/reranker/ms-marco-MiniLM-L-6-v2
+  **Dockerfile Details**:
+  - Installs: build-essential, cmake, transformers, etc.
+  - Copies: serve_model.py
+  - Creates: model directories
+  - Command: python serve_model.py
+  **Healthcheck**:
+  - Test: curl -f http://localhost:5000/health
+  - Interval: 30s, Timeout: 10s, Retries: 3
+  **Network**: rag-network
+end note
 
-' Define relationships
-flask --> mlflow : "HTTP"
-rag_model --> vector_db : "uses"
-rag_model --> embedding_model : "uses"
-rag_model --> reranker_model : "uses"
-rag_model --> llm_model : "uses"
-ingestion_pipeline --> embedding_model : "uses"
-ingestion_pipeline --> vector_db : "uses"
-flask ..> ingestion_pipeline : "triggers"
+' Legend with colored row backgrounds
+legend right
+|= Color Guide |
+| <back:#LightBlue> Vector DB </back> |
+| <back:#LightGreen> MLflow </back> |
+| <back:#LightCoral> Flask App </back> |
+| <back:#LightGoldenRodYellow> Model Server </back> |
+| <back:#PowderBlue> Volumes </back> |
+| <back:#Wheat> Host Dirs </back> |
+| <back:#LightGray> Network </back> |
+end legend
 
-' Add notes for clarity
-note left of flask : "User interacts via web interface"
-note right of mlflow : "Serves RAG Model via REST API"
-note bottom of rag_model : "Implements RAG logic"
-note top of vector_db : "Stores vector embeddings"
-note bottom of ingestion_pipeline : "Processes PDFs and indexes vectors"
 @enduml

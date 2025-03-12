@@ -16,6 +16,10 @@ from pathlib import Path
 import tempfile
 import glob
 import re
+import dotenv
+
+# Load environment variables from .env file
+dotenv.load_dotenv()
 
 def ensure_dependencies():
     """Install required dependencies for documentation."""
@@ -27,7 +31,8 @@ def ensure_dependencies():
         "sphinx-rtd-theme==2.0.0",
         "myst-parser==3.0.0",
         "rinohtype==0.5.4",
-        "cairosvg==2.7.1"
+        "cairosvg==2.7.1",
+        "python-dotenv==1.0.1"
     ]
     
     # Install required packages
@@ -41,6 +46,13 @@ def ensure_dependencies():
         print("  - MacOS: brew install --cask mactex")
         print("  - Ubuntu: apt-get install texlive-latex-extra")
         print("  - Windows: Install MiKTeX or TeX Live")
+    
+    # Check for PlantUML JAR
+    plantuml_jar = os.getenv('PLANTUML_JAR')
+    if not plantuml_jar:
+        print("Warning: PLANTUML_JAR environment variable not set. PlantUML diagrams may not be processed.")
+    elif not Path(plantuml_jar).exists():
+        print(f"Warning: PlantUML JAR file not found at {plantuml_jar}. PlantUML diagrams may not be processed.")
 
 def find_svg_files():
     """Find all SVG files in the documentation directories."""
@@ -91,7 +103,16 @@ def convert_svg_to_pdf(svg_files, static_dir):
         # Try conversion methods in order of preference
         converted = False
         
-        # Method 1: Inkscape (highest quality)
+        # Method 1: CairoSVG (preferred for speed and simplicity)
+        if have_cairosvg and not converted:
+            try:
+                cairosvg.svg2pdf(url=str(svg_file), write_to=str(pdf_path))
+                converted = True
+                print(f"  - Converted using CairoSVG")
+            except Exception as e:
+                print(f"  - CairoSVG conversion failed: {e}")
+        
+        # Method 2: Inkscape (fallback for complex SVGs)
         if shutil.which('inkscape') and not converted:
             try:
                 result = subprocess.run(
@@ -100,19 +121,33 @@ def convert_svg_to_pdf(svg_files, static_dir):
                     check=True
                 )
                 converted = True
+                print(f"  - Converted using Inkscape")
             except subprocess.CalledProcessError as e:
-                print(f"Inkscape conversion failed: {e}")
-        
-        # Method 2: CairoSVG (fallback)
-        if have_cairosvg and not converted:
-            try:
-                cairosvg.svg2pdf(url=str(svg_file), write_to=str(pdf_path))
-                converted = True
-            except Exception as e:
-                print(f"CairoSVG conversion failed: {e}")
+                print(f"  - Inkscape conversion failed: {e}")
         
         if not converted:
             print(f"WARNING: Could not convert {svg_file} to PDF!")
+
+def generate_puml_diagrams():
+    """Generate SVG files from PlantUML diagrams."""
+    print("Generating SVG files from PlantUML diagrams...")
+    
+    # Get PlantUML JAR path from environment variable
+    plantuml_jar = os.getenv('PLANTUML_JAR')
+    if not plantuml_jar:
+        print("Error: PLANTUML_JAR environment variable not set. Skipping PlantUML diagram generation.")
+        return
+    
+    if not Path(plantuml_jar).exists():
+        print(f"Error: PlantUML JAR file not found at {plantuml_jar}. Skipping PlantUML diagram generation.")
+        return
+    
+    # Run the convert_plantuml_to_svg.py script
+    try:
+        subprocess.run([sys.executable, "app/scripts/convert_plantuml_to_svg.py"], check=True)
+        print("PlantUML diagrams generated successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error generating PlantUML diagrams: {e}")
 
 def cleanup_latex_md_files():
     """Remove all *_latex.md files as they are no longer needed."""
@@ -272,6 +307,9 @@ def main():
     
     # Ensure dependencies are installed
     ensure_dependencies()
+    
+    # Generate PlantUML diagrams
+    generate_puml_diagrams()
     
     # Clean up redundant LaTeX markdown files
     cleanup_latex_md_files()
