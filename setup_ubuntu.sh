@@ -66,6 +66,18 @@ sudo apt-get install -y \
     python3-venv
 echo -e "${GREEN}Dependencies installed.${NC}"
 
+# Determine which Python command to use
+if command -v python &> /dev/null; then
+    PYTHON_CMD="python"
+    echo -e "${GREEN}Using 'python' command.${NC}"
+elif command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
+    echo -e "${GREEN}Using 'python3' command.${NC}"
+else
+    echo -e "${RED}Error: Neither 'python' nor 'python3' command found. Please install Python 3.${NC}"
+    exit 1
+fi
+
 # Install Docker if not already installed
 if ! command -v docker &> /dev/null; then
     echo -e "${YELLOW}Installing Docker...${NC}"
@@ -160,12 +172,12 @@ else
   read -r answer
   if [[ "$answer" =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}Indexing sample documents...${NC}"
-    VECTOR_DB_HOST=localhost python3 -m app.pipeline --pdf-dir ./data/documents --rebuild
+    VECTOR_DB_HOST=localhost $PYTHON_CMD -m app.pipeline --pdf-dir ./data/documents --rebuild
     echo -e "${GREEN}Sample documents indexed.${NC}"
   else
     echo -e "${YELLOW}Skipping document indexing.${NC}"
     echo -e "${YELLOW}You can index documents later with:${NC}"
-    echo -e "${YELLOW}VECTOR_DB_HOST=localhost python3 -m app.pipeline --pdf-dir ./data/documents --rebuild${NC}"
+    echo -e "${YELLOW}VECTOR_DB_HOST=localhost $PYTHON_CMD -m app.pipeline --pdf-dir ./data/documents --rebuild${NC}"
   fi
 fi
 

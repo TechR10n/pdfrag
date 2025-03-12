@@ -7,6 +7,7 @@ PDFrag is a system for retrieving information from PDF documents using a Retriev
 - Docker and Docker Compose
 - Hugging Face account with access to Meta Llama models
 - Hugging Face token with read access
+- Python 3.8+ (scripts will automatically detect and use either `python` or `python3` command)
 
 ## Setup
 
@@ -40,8 +41,10 @@ You can view all available options with:
    mkdir -p data/documents data/vectors models
    chmod 777 data/documents data/vectors models
    ```
-5. Download the required models:
+5. Download the required models (use either `python` or `python3` depending on your system):
    ```bash
+   python -m app.download_models
+   # OR
    python3 -m app.download_models
    ```
 6. Build and start the Docker containers:
@@ -108,8 +111,10 @@ The system provides a REST API for programmatic access:
 
 The project includes a comprehensive test suite using pytest. To run the tests:
 
-1. Install development dependencies:
+1. Install development dependencies (use either `pip` or `pip3` depending on your system):
    ```bash
+   pip install -r requirements-dev.txt
+   # OR
    pip3 install -r requirements-dev.txt
    ```
 
@@ -171,6 +176,8 @@ If you encounter issues with the model server:
 For more detailed diagnostics of vector database connection issues, you can use the included diagnostic script:
 
 ```bash
+python check_vector_db.py
+# OR
 python3 check_vector_db.py
 ```
 

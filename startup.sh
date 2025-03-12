@@ -15,6 +15,18 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
+# Determine which Python command to use
+if command -v python &> /dev/null; then
+    PYTHON_CMD="python"
+    echo -e "${GREEN}Using 'python' command.${NC}"
+elif command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
+    echo -e "${GREEN}Using 'python3' command.${NC}"
+else
+    echo -e "${RED}Error: Neither 'python' nor 'python3' command found. Please install Python 3.${NC}"
+    exit 1
+fi
+
 # Function to display help
 show_help() {
   echo "Usage: ./startup.sh [OPTIONS]"
@@ -157,7 +169,7 @@ fi
 # Rebuild index if requested or if we reset the database
 if [ "$REBUILD_INDEX" = true ]; then
   echo -e "${YELLOW}Rebuilding vector index...${NC}"
-  VECTOR_DB_HOST=localhost python3 -m app.pipeline --pdf-dir ./data/documents --rebuild
+  VECTOR_DB_HOST=localhost $PYTHON_CMD -m app.pipeline --pdf-dir ./data/documents --rebuild
   echo -e "${GREEN}Vector index rebuilt.${NC}"
 fi
 
