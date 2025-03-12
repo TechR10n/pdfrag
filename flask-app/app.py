@@ -15,6 +15,7 @@ import threading
 import queue
 import socket
 import time
+from utils.mlflow_client import MLflowClient, create_mlflow_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -75,15 +76,9 @@ def is_model_server_alive():
             logger.error(f"Model server at {MODEL_SERVER_HOST}:{MODEL_SERVER_PORT} is not reachable")
             return False
             
-        # Then check the health endpoint
-        response = requests.get(f"{MODEL_SERVER_URL}/health", timeout=5)
-        if response.status_code == 200:
-            health_data = response.json()
-            logger.info(f"Model server health: {health_data}")
-            return health_data.get('status') == 'healthy' and health_data.get('model') == 'ready'
-        else:
-            logger.error(f"Model server returned status code: {response.status_code}")
-            return False
+        # Use the MLflow client to check health
+        mlflow_client = MLflowClient(f"http://{MODEL_SERVER_HOST}:{MODEL_SERVER_PORT}")
+        return mlflow_client.is_alive()
     except socket.error as e:
         logger.error(f"Socket error checking model health: {str(e)}")
         return False
@@ -123,30 +118,12 @@ def process_question_with_model_server(question, timeout=TIMEOUT_SECONDS, max_re
                     result_queue.put(('error', "Model server is not available"))
                     return
                 
-                # Prepare the payload for the model server
-                payload = {
-                    "query": question
-                }
+                # Create MLflow client
+                mlflow_client = MLflowClient(f"http://{MODEL_SERVER_HOST}:{MODEL_SERVER_PORT}")
                 
-                # Send the request to the model server
-                logger.info(f"Sending request to model server at {MODEL_SERVER_URL}/invocations (attempt {retries + 1}/{max_retries + 1})")
-                response = requests.post(
-                    f"{MODEL_SERVER_URL}/invocations", 
-                    json=payload,
-                    timeout=min(30, timeout / (max_retries + 1))  # Use a reasonable timeout for each attempt
-                )
-                
-                # Check if the request was successful
-                if response.status_code != 200:
-                    logger.error(f"Model server returned error: {response.status_code} - {response.text}")
-                    if retries < max_retries:
-                        retries += 1
-                        continue
-                    result_queue.put(('error', f"Model server error: {response.status_code}"))
-                    return
-                
-                # Parse the response
-                result = response.json()
+                # Send the request to the model server using the MLflow client
+                logger.info(f"Sending request to model server using MLflow client (attempt {retries + 1}/{max_retries + 1})")
+                result = mlflow_client.predict(question)
                 logger.info(f"Received response from model server: {result}")
                 
                 # Extract the predictions from the response

@@ -195,20 +195,22 @@ def rerank_passages(query: str, passages: List[Dict[str, Any]]) -> List[Dict[str
         return []
     
     try:
-        # Prepare passage pairs
-        passage_pairs = [(query, passage["text"]) for passage in passages]
+        # Prepare passage pairs for reranking
+        passage_pairs = [[query, passage] for passage in passages]
         
         # Get scores
         scores = reranker_model.predict(passage_pairs)
         
-        # Add scores to passages
-        for i, passage in enumerate(passages):
-            passage["score"] = float(scores[i])
+        # Create result with scores
+        result = [
+            {"passage": passage, "score": float(score)}
+            for passage, score in zip(passages, scores)
+        ]
         
         # Sort by score in descending order
-        ranked_passages = sorted(passages, key=lambda x: x["score"], reverse=True)
+        result = sorted(result, key=lambda x: x["score"], reverse=True)
         
-        return ranked_passages
+        return result
     except Exception as e:
         error_msg = f"Error reranking passages: {str(e)}"
         logger.error(error_msg)
@@ -255,37 +257,101 @@ def rerank():
     passages = data["passages"]
     
     try:
-        ranked_passages = rerank_passages(query, passages)
-        return jsonify({"ranked_passages": ranked_passages})
+        # Prepare passage pairs for reranking
+        passage_pairs = [[query, passage] for passage in passages]
+        
+        # Get scores
+        scores = reranker_model.predict(passage_pairs)
+        
+        # Create result with scores
+        result = [
+            {"passage": passage, "score": float(score)}
+            for passage, score in zip(passages, scores)
+        ]
+        
+        # Sort by score in descending order
+        result = sorted(result, key=lambda x: x["score"], reverse=True)
+        
+        return jsonify({"results": result})
     except Exception as e:
-        logger.error(f"Error reranking passages: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        error_message = f"Error reranking passages: {str(e)}"
+        logger.error(error_message)
+        return jsonify({"error": error_message}), 500
 
-@app.route("/generate", methods=["POST"])
-def generate():
-    """Generate response endpoint."""
-    data = request.json
-    
-    if not data or "question" not in data:
-        return jsonify({"error": "Missing 'question' field"}), 400
-    
-    question = data["question"]
-    context = data.get("context", [])
-    max_new_tokens = data.get("max_new_tokens", 512)
-    temperature = data.get("temperature", 0.7)
-    
+@app.route("/invocations", methods=["POST"])
+def invocations():
+    """MLflow model server invocations endpoint."""
     try:
+        data = request.json
+        logger.info(f"Received invocation request: {data}")
+        
+        if not data:
+            return jsonify({"error_code": "BAD_REQUEST", "message": "Request body is empty"}), 400
+            
+        # Check for MLflow format (dataframe_split, instances, inputs, or dataframe_records)
+        if "dataframe_split" in data:
+            # Handle dataframe_split format
+            query = data["dataframe_split"]["data"][0][0]  # Assuming first column is the query
+            context = []  # No context in standard MLflow format
+            max_new_tokens = 512  # Default value
+            temperature = 0.7  # Default value
+        elif "instances" in data:
+            # Handle instances format
+            query = data["instances"][0]  # Assuming first instance is the query
+            context = []  # No context in standard MLflow format
+            max_new_tokens = 512  # Default value
+            temperature = 0.7  # Default value
+        elif "inputs" in data:
+            # Handle inputs format
+            query = data["inputs"]
+            context = []  # No context in standard MLflow format
+            max_new_tokens = 512  # Default value
+            temperature = 0.7  # Default value
+        elif "dataframe_records" in data:
+            # Handle dataframe_records format
+            query = data["dataframe_records"][0]["query"]  # Assuming column name is "query"
+            context = []  # No context in standard MLflow format
+            max_new_tokens = 512  # Default value
+            temperature = 0.7  # Default value
+        elif "query" in data:
+            # Handle direct query format (non-standard but useful for testing)
+            query = data["query"]
+            context = []  # No context in standard MLflow format
+            max_new_tokens = 512  # Default value
+            temperature = 0.7  # Default value
+        elif "question" in data:
+            # Handle the format previously used by /generate endpoint
+            query = data["question"]
+            context = data.get("context", [])
+            max_new_tokens = data.get("max_new_tokens", 512)
+            temperature = data.get("temperature", 0.7)
+        else:
+            return jsonify({
+                "error_code": "BAD_REQUEST", 
+                "message": "The input must be a JSON dictionary with one of the input fields {'dataframe_split', 'instances', 'inputs', 'dataframe_records', 'query', 'question'}. Received dictionary with input fields: " + str(list(data.keys()))
+            }), 400
+        
+        # Generate response
         response = generate_rag_response(
-            question=question,
+            question=query,
             context=context,
             max_new_tokens=max_new_tokens,
             temperature=temperature
         )
-        return jsonify(response)
+        
+        # Format response according to MLflow protocol
+        predictions = {
+            "text": response.get("answer", ""),
+            "sources": response.get("sources", [])
+        }
+        
+        return jsonify({"predictions": predictions})
     except Exception as e:
-        error_message = f"Error generating response: {str(e)}"
+        error_message = f"Error processing invocation: {str(e)}"
         logger.error(error_message)
-        return jsonify({"error": error_message}), 500
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({"error_code": "INTERNAL_ERROR", "message": error_message}), 500
 
 if __name__ == "__main__":
     # Load models

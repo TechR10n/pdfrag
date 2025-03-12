@@ -7,6 +7,8 @@ This section contains detailed API reference documentation for the PDF RAG Syste
    :maxdepth: 2
 
    core
+   pdf_ingestion
+   text_chunking
    search
    embedding
    llm 

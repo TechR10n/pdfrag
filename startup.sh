@@ -5,7 +5,7 @@ set -e
 
 # Configuration
 PROJECT_ROOT=$(pwd)
-PDF_DIR="${PROJECT_ROOT}/data/pdfs"
+PDF_DIR="${PROJECT_ROOT}/data/documents"
 MODELS_DIR="${PROJECT_ROOT}/models"
 VENV_DIR="${PROJECT_ROOT}/venv"
 
@@ -66,7 +66,7 @@ fi
 
 # Check if vector database is running
 echo "Checking vector database service..."
-if curl -s http://localhost:6333/health > /dev/null; then
+if curl -s http://localhost:6333/healthz > /dev/null; then
     echo -e "${GREEN}Vector database service is running.${NC}"
 else
     echo -e "${RED}Vector database service is not running. Check Docker logs.${NC}"

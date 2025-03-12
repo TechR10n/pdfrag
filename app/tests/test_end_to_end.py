@@ -22,7 +22,7 @@ def check_service_availability():
     services = {
         "Flask Web App": f"{FLASK_BASE_URL}/api/health",
         "MLflow": f"http://localhost:5001/ping",
-        "Vector DB": f"http://localhost:6333/health",
+        "Vector DB": f"http://localhost:6333/healthz",
     }
     
     available = {}

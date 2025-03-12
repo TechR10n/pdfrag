@@ -56,7 +56,7 @@ echo "Testing system functionality..."
 
 # Test if services are still responding
 echo "Testing vector database..."
-if curl -s http://localhost:6333/health > /dev/null; then
+if curl -s http://localhost:6333/healthz > /dev/null; then
     echo -e "${GREEN}Vector database is responding in offline mode.${NC}"
 else
     echo -e "${RED}Vector database is not responding!${NC}"

@@ -28,6 +28,7 @@ RUN pip install --no-cache-dir \
 COPY flask-app/*.py .
 COPY flask-app/templates/ ./templates/
 COPY flask-app/static/ ./static/
+COPY flask-app/utils/ ./utils/
 
 # Create necessary directories
 RUN mkdir -p /flask_app/data/documents

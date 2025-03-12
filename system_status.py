@@ -58,7 +58,7 @@ def check_system_status():
     # HTTP endpoints
     print(f"\n{Colors.BOLD}Service Endpoints:{Colors.ENDC}")
     endpoints = [
-        ("http://localhost:6333/health", "Vector DB API"),
+        ("http://localhost:6333/healthz", "Vector DB API"),
         ("http://localhost:5001/ping", "MLflow API"),
         ("http://localhost:8000/api/health", "Flask API"),
     ]

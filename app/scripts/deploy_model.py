@@ -14,13 +14,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from app.config.settings import MLFLOW_TRACKING_URI, MLFLOW_MODEL_NAME
 
-def deploy_model(run_id=None, port=5001):
+def deploy_model(run_id=None, port=5002):
     """
     Deploy the RAG model using MLflow.
     
     Args:
         run_id: Run ID to deploy (if None, use latest version)
-        port: Port to deploy on
+        port: Port to deploy on (default is 5002, which is the model server port)
     """
     # Set MLflow tracking URI
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
@@ -33,17 +33,22 @@ def deploy_model(run_id=None, port=5001):
         model_uri = f"models:/{MLFLOW_MODEL_NAME}/latest"
         logger.info(f"Deploying latest version of model {MLFLOW_MODEL_NAME}")
     
-    # Deploy model
-    logger.info(f"Starting MLflow serving on port {port}")
-    os.system(f"mlflow models serve -m {model_uri} -p {port} --no-conda")
+    # DISABLED: Local MLflow serving is no longer needed as we're using the model server's /invocations endpoint
+    logger.info(f"Local MLflow serving on port 5004 is disabled.")
+    logger.info(f"Using model server's /invocations endpoint on port {port} instead.")
+    logger.info(f"Model URI: {model_uri}")
+    
+    # Instead of starting a local MLflow server, we're now using the model server's /invocations endpoint
+    # The model server is already running on port 5002 (external) and handles requests to /invocations
+    # os.system(f"mlflow models serve -m {model_uri} -p {port} --no-conda")
 
 if __name__ == "__main__":
     # Parse arguments
     parser = argparse.ArgumentParser(description='Deploy the RAG model')
     parser.add_argument('--run-id', type=str, default=None,
                         help='Run ID to deploy')
-    parser.add_argument('--port', type=int, default=5001,
-                        help='Port to deploy on')
+    parser.add_argument('--port', type=int, default=5002,
+                        help='Port to deploy on (default is 5002, which is the model server port)')
     args = parser.parse_args()
     
     # Deploy model

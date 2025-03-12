@@ -14,7 +14,7 @@ curl -s http://localhost:8000/api/health | jq || echo "Failed to connect to flas
 
 # Check vector-db health
 echo -e "\nChecking vector-db health..."
-curl -s http://localhost:6333/health | jq || echo "Failed to connect to vector-db"
+curl -s http://localhost:6333/healthz | jq || echo "Failed to connect to vector-db"
 
 # Check mlflow health
 echo -e "\nChecking mlflow health..."

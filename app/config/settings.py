@@ -9,7 +9,7 @@ dotenv.load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Vector database settings
-VECTOR_DB_HOST = os.environ.get("VECTOR_DB_HOST", "vector-db")  # Use Docker service name
+VECTOR_DB_HOST = os.environ.get("VECTOR_DB_HOST", "localhost")  # Use localhost when running outside Docker
 VECTOR_DB_PORT = 6333
 VECTOR_DIMENSION = 384  # For all-MiniLM-L6-v2
 COLLECTION_NAME = "pdf_chunks"
@@ -46,5 +46,5 @@ MLFLOW_ARTIFACT_ROOT = os.path.join(BASE_DIR, "mlruns", "artifacts")  # Absolute
 
 # Flask settings
 FLASK_SECRET_KEY = "change-this-in-production"
-PDF_UPLOAD_FOLDER = os.path.join(BASE_DIR, "data", "pdfs")
+PDF_UPLOAD_FOLDER = os.path.join(BASE_DIR, "data", "documents")
 ALLOWED_EXTENSIONS = {'pdf'}

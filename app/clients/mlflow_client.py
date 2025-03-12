@@ -31,9 +31,10 @@ class MLflowClient:
         """
         logger.info(f"Sending query to MLflow endpoint: {query}")
         
-        # Create payload
+        # Create payload using the question format for backward compatibility
         payload = {
-            "query": query
+            "question": query,
+            "context": []
         }
         
         # Send request
@@ -62,12 +63,12 @@ class MLflowClient:
             True if the endpoint is alive, False otherwise
         """
         try:
-            response = requests.get(f"{self.endpoint_url}/ping")
+            response = requests.get(f"{self.endpoint_url}/health")
             return response.status_code == 200
         except:
             return False
 
-def create_mlflow_client(host: str = "localhost", port: int = 5001) -> MLflowClient:
+def create_mlflow_client(host: str = "localhost", port: int = 5002) -> MLflowClient:
     """
     Create an MLflow client.
     
@@ -91,6 +92,6 @@ if __name__ == "__main__":
         
         # Make a prediction
         response = client.predict("What is retrieval-augmented generation?")
-        print(f"Response: {response['text']}")
+        print(f"Response: {response['predictions']['text']}")
     else:
         print("MLflow endpoint is not available. Make sure the model is deployed.")
