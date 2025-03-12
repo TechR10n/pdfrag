@@ -51,8 +51,7 @@ sudo apt-get install -y \
   pkg-config \
   python3-dev \
   libssl-dev \
-  docker.io \
-  docker-compose
+
 
 # Check Docker installation
 echo -e "${YELLOW}Configuring Docker...${NC}"

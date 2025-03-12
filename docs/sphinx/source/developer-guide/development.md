@@ -18,6 +18,72 @@ project/
 └── tests/
 ```
 
+## Setup Script for Ubuntu
+
+I've created a comprehensive setup script (`setup_ubuntu.sh`) for your PDFrag system designed specifically for Ubuntu Linux users. Here's what the script does:
+
+1. **System Checks**:
+   - Verifies the user is not running as root (for security)
+   - Checks if the system is running Ubuntu
+
+2. **System Dependencies**:
+   - Updates package lists
+   - Installs required system packages:
+     - Python 3 and development tools
+     - Git, curl, wget
+     - Build tools (build-essential, cmake)
+     - Cairo graphics library (for PDF processing)
+     - Docker and Docker Compose
+
+3. **Docker Configuration**:
+   - Ensures Docker service is running and enabled
+   - Adds the current user to the docker group to avoid using sudo
+
+4. **Repository Setup**:
+   - Clones the repository if not already in it
+   - Sets up a Python virtual environment
+   - Installs Python dependencies from requirements.txt and requirements-dev.txt
+
+5. **Directory Structure**:
+   - Creates necessary data and model directories
+
+6. **Environment Configuration**:
+   - Creates a .env file from the template
+   - Prompts for Hugging Face token
+   - Generates a random Flask secret key
+   - Sets PlantUML path if available
+
+7. **Model Download**:
+   - Downloads all required models using the download_models.sh script
+   - Verifies models were downloaded successfully
+
+8. **Docker Build**:
+   - Builds the Docker containers
+
+9. **Final Instructions**:
+   - Provides clear instructions on how to start the system and access the web interface
+   - Offers troubleshooting tips
+
+### Usage Instructions
+
+To use the script, a new user would:
+
+1. Save the script as `setup_ubuntu.sh`
+2. Make it executable: `chmod +x setup_ubuntu.sh`
+3. Run it: `./setup_ubuntu.sh`
+4. Follow the prompts, especially for the Hugging Face token
+5. Once setup is complete, start the system with `./startup.sh`
+
+### Important Notes
+
+1. The script checks if the user recently added to the docker group needs to log out and back in for changes to take effect.
+2. It handles the case where a user might run the script from outside the repository by cloning it first.
+3. The script requires an internet connection to download packages and models.
+4. A Hugging Face token with access to Meta Llama models is required.
+
+Let me know if you need any clarifications or have any questions about the setup script!
+
+
 ## Development Environment
 
 ### Prerequisites
