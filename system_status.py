@@ -60,7 +60,7 @@ def check_system_status():
     endpoints = [
         ("http://localhost:6333/healthz", "Vector DB API"),
         ("http://localhost:5001/ping", "MLflow API"),
-        ("http://localhost:8000/api/health", "Flask API"),
+        ("http://localhost:8001/api/health", "Flask API"),
     ]
     
     for url, name in endpoints:
@@ -71,7 +71,7 @@ def check_system_status():
     print(f"\n{Colors.BOLD}MLflow Model:{Colors.ENDC}")
     try:
         # Check if the flask API can communicate with MLflow
-        response = requests.get("http://localhost:8000/api/health", timeout=2)
+        response = requests.get("http://localhost:8001/api/health", timeout=2)
         if response.status_code == 200:
             data = response.json()
             mlflow_status = data.get("mlflow", False)
@@ -155,6 +155,26 @@ def stop_service(service_name):
         
     except subprocess.CalledProcessError as e:
         print(f"Error stopping service: {e}")
+
+def check_services():
+    """Check if all services are running."""
+    services = [
+        ("http://localhost:6333/healthz", "Vector Database"),
+        ("http://localhost:5001/", "MLflow"),
+        ("http://localhost:5002/health", "Model Server"),
+        ("http://localhost:8001/api/health", "Flask API"),
+    ]
+    # ... existing code ...
+
+def check_flask_api():
+    """Check if the Flask API is running."""
+    try:
+        response = requests.get("http://localhost:8001/api/health", timeout=2)
+        if response.status_code == 200:
+            return True, response.json()
+        return False, f"API returned status code {response.status_code}"
+    except requests.exceptions.RequestException as e:
+        return False, str(e)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Check status of Local RAG System")

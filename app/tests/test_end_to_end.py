@@ -3,6 +3,7 @@ import sys
 import time
 import pytest
 import requests
+import json
 from pathlib import Path
 
 # Add the project root to the Python path
@@ -13,7 +14,7 @@ from app.utils.vector_db import VectorDBClient
 from app.clients.mlflow_client import create_mlflow_client
 
 # Test configuration
-FLASK_BASE_URL = "http://localhost:8000"
+FLASK_BASE_URL = "http://localhost:8001"
 TEST_PDF_PATH = os.path.join(Path(__file__).resolve().parent, "data", "sample.pdf")
 TEST_QUESTION = "What is machine learning?"
 

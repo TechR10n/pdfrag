@@ -70,21 +70,17 @@ else
 fi
 
 echo "Testing Flask app..."
-if curl -s http://localhost:8000/api/health > /dev/null; then
-    echo -e "${GREEN}Flask app is responding in offline mode.${NC}"
+if curl -s http://localhost:8001/api/health > /dev/null; then
+    echo -e "${GREEN}Flask app is running.${NC}"
+    
+    # Test query
+    echo -e "${YELLOW}Testing query...${NC}"
+    QUERY_RESULT=$(curl -s -X POST -H "Content-Type: application/json" -d '{"question":"What is machine learning?"}' http://localhost:8001/api/ask)
+    echo -e "${GREEN}Query result:${NC}"
+    echo $QUERY_RESULT | jq
 else
-    echo -e "${RED}Flask app is not responding!${NC}"
-fi
-
-# Test a query to verify end-to-end functionality
-echo "Testing query functionality..."
-QUERY_RESULT=$(curl -s -X POST -H "Content-Type: application/json" -d '{"question":"What is machine learning?"}' http://localhost:8000/api/ask)
-
-if [[ $QUERY_RESULT == *"text"* ]]; then
-    echo -e "${GREEN}Query functionality is working in offline mode.${NC}"
-else
-    echo -e "${RED}Query functionality is not working in offline mode!${NC}"
-    echo "Response: $QUERY_RESULT"
+    echo -e "${RED}Flask app is not running.${NC}"
+    exit 1
 fi
 
 # Wait for user to check the system

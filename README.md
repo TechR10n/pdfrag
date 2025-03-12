@@ -42,7 +42,7 @@ PDFrag is a system for retrieving information from PDF documents using a Retriev
 
 ## Usage
 
-1. Access the web interface at http://localhost:8000
+1. Access the web interface at http://localhost:8001
 
 2. Upload PDF documents through the web interface
 
@@ -54,12 +54,12 @@ The system provides a REST API for programmatic access:
 
 - `POST /api/ask` - Ask a question about the uploaded documents
   ```bash
-  curl -X POST -H "Content-Type: application/json" -d '{"question":"What is retrieval-augmented generation?"}' http://localhost:8000/api/ask
+  curl -X POST -H "Content-Type: application/json" -d '{"question":"What is retrieval-augmented generation?"}' http://localhost:8001/api/ask
   ```
 
 - `GET /api/health` - Check the health of the system
   ```bash
-  curl http://localhost:8000/api/health
+  curl http://localhost:8001/api/health
   ```
 
 ## Testing

@@ -18,11 +18,26 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Get model IDs from environment variables
+HF_MODEL_ID = os.environ.get("HF_MODEL_ID", "meta-llama/Llama-3.2-1B-Instruct")
+HF_EMBEDDING_MODEL_ID = os.environ.get("HF_EMBEDDING_MODEL_ID", "sentence-transformers/all-MiniLM-L6-v2")
+HF_RERANKER_MODEL_ID = os.environ.get("HF_RERANKER_MODEL_ID", "cross-encoder/ms-marco-MiniLM-L-6-v2")
+
+# Extract model names (part after the last slash)
+MODEL_NAME = HF_MODEL_ID.split('/')[-1]
+EMBEDDING_MODEL_NAME = HF_EMBEDDING_MODEL_ID.split('/')[-1]
+RERANKER_MODEL_NAME = HF_RERANKER_MODEL_ID.split('/')[-1]
+
 # Environment variables
 PORT = int(os.environ.get("PORT", 5000))
-MODEL_PATH = os.environ.get("MODEL_PATH", "/model_server/models/llm/Llama-3.2-1B-Instruct")
-EMBEDDING_MODEL_PATH = os.environ.get("EMBEDDING_MODEL_PATH", "/model_server/models/embedding/all-MiniLM-L6-v2")
-RERANKER_MODEL_PATH = os.environ.get("RERANKER_MODEL_PATH", "/model_server/models/reranker/ms-marco-MiniLM-L-6-v2")
+MODEL_PATH = os.environ.get("MODEL_PATH", f"/model_server/models/llm/{MODEL_NAME}")
+EMBEDDING_MODEL_PATH = os.environ.get("EMBEDDING_MODEL_PATH", f"/model_server/models/embedding/{EMBEDDING_MODEL_NAME}")
+RERANKER_MODEL_PATH = os.environ.get("RERANKER_MODEL_PATH", f"/model_server/models/reranker/{RERANKER_MODEL_NAME}")
+
+# Log the paths for debugging
+logger.info(f"MODEL_PATH: {MODEL_PATH}")
+logger.info(f"EMBEDDING_MODEL_PATH: {EMBEDDING_MODEL_PATH}")
+logger.info(f"RERANKER_MODEL_PATH: {RERANKER_MODEL_PATH}")
 
 # Initialize Flask app
 app = Flask(__name__)

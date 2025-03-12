@@ -51,7 +51,31 @@ sudo apt-get install -y \
   pkg-config \
   python3-dev \
   libssl-dev \
+  docker-compose
 
+# Install Docker using the official Docker repository
+echo -e "${YELLOW}Installing Docker from official Docker repository...${NC}"
+
+# Uninstall old versions if they exist
+sudo apt-get remove -y docker docker-engine docker.io containerd runc || true
+
+# Update apt and install required dependencies
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+
+# Add Docker's official GPG key
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+# Set up the stable repository
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Install Docker Engine
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# Install Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
 
 # Check Docker installation
 echo -e "${YELLOW}Configuring Docker...${NC}"
@@ -114,6 +138,29 @@ if [ ! -f ".env" ]; then
   # Update the token in .env file
   sed -i "s/your_huggingface_token_here/$HF_TOKEN/g" .env
   
+  # Prompt for Hugging Face Model IDs (with defaults)
+  echo
+  echo "Enter the Hugging Face model IDs to use:"
+  
+  echo "1. LLM Model ID (default: meta-llama/Llama-3.2-1B-Instruct):"
+  read HF_MODEL_ID_INPUT
+  
+  echo "2. Embedding Model ID (default: sentence-transformers/all-MiniLM-L6-v2):"
+  read HF_EMBEDDING_MODEL_ID_INPUT
+  
+  echo "3. Reranker Model ID (default: cross-encoder/ms-marco-MiniLM-L-6-v2):"
+  read HF_RERANKER_MODEL_ID_INPUT
+  
+  # Use defaults if empty
+  HF_MODEL_ID=${HF_MODEL_ID_INPUT:-meta-llama/Llama-3.2-1B-Instruct}
+  HF_EMBEDDING_MODEL_ID=${HF_EMBEDDING_MODEL_ID_INPUT:-sentence-transformers/all-MiniLM-L6-v2}
+  HF_RERANKER_MODEL_ID=${HF_RERANKER_MODEL_ID_INPUT:-cross-encoder/ms-marco-MiniLM-L-6-v2}
+  
+  # Update the model IDs in .env file
+  sed -i "s|HF_MODEL_ID=meta-llama/Llama-3.2-1B-Instruct|HF_MODEL_ID=$HF_MODEL_ID|g" .env
+  sed -i "s|HF_EMBEDDING_MODEL_ID=sentence-transformers/all-MiniLM-L6-v2|HF_EMBEDDING_MODEL_ID=$HF_EMBEDDING_MODEL_ID|g" .env
+  sed -i "s|HF_RERANKER_MODEL_ID=cross-encoder/ms-marco-MiniLM-L-6-v2|HF_RERANKER_MODEL_ID=$HF_RERANKER_MODEL_ID|g" .env
+  
   # Generate a random Flask secret key
   FLASK_SECRET=$(python3 -c 'import secrets; print(secrets.token_hex(16))')
   sed -i "s/change-this-in-production/$FLASK_SECRET/g" .env
@@ -130,7 +177,15 @@ fi
 # Download models
 echo -e "${YELLOW}Downloading models...${NC}"
 echo "This may take some time depending on your internet connection."
-export HF_TOKEN=$(grep HF_TOKEN .env | cut -d= -f2)
+
+# Export environment variables from .env
+export $(grep -v '^#' .env | xargs)
+
+# Derived variables
+MODEL_NAME=$(echo $HF_MODEL_ID | awk -F/ '{print $NF}')
+EMBEDDING_MODEL_NAME=$(echo $HF_EMBEDDING_MODEL_ID | awk -F/ '{print $NF}')
+RERANKER_MODEL_NAME=$(echo $HF_RERANKER_MODEL_ID | awk -F/ '{print $NF}')
+
 if [ -n "$HF_TOKEN" ]; then
   bash download_models.sh
 else
@@ -138,8 +193,8 @@ else
   exit 1
 fi
 
-# Check if models were downloaded successfully
-if [ ! -d "models/llm/Llama-3.2-1B-Instruct" ] || [ ! -d "models/embedding/all-MiniLM-L6-v2" ] || [ ! -d "models/reranker/ms-marco-MiniLM-L-6-v2" ]; then
+# Check if models were downloaded successfully - use dynamic paths
+if [ ! -d "models/llm/$MODEL_NAME" ] || [ ! -d "models/embedding/$EMBEDDING_MODEL_NAME" ] || [ ! -d "models/reranker/$RERANKER_MODEL_NAME" ]; then
   echo -e "${RED}Error: Some models failed to download. Please check the logs.${NC}"
   exit 1
 fi
@@ -153,7 +208,7 @@ echo "To start the PDFrag system, run:"
 echo "  ./startup.sh"
 echo
 echo "To access the web interface once started:"
-echo "  http://localhost:8000"
+echo "  http://localhost:8001"
 echo
 echo "If you encounter any issues:"
 echo "1. Check the logs with 'docker-compose logs'"

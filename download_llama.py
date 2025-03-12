@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 def download_llama_model():
-    """Download the Llama-3.2-1B-Instruct model from Hugging Face."""
+    """Download the Llama model from Hugging Face."""
     # Get the Hugging Face token from environment
     hf_token = os.environ.get("HF_TOKEN")
     
@@ -26,16 +26,19 @@ def download_llama_model():
         logger.error("HF_TOKEN environment variable not set. Please set it before running this script.")
         return False
     
-    # Model details
-    repo_id = "meta-llama/Llama-3.2-1B-Instruct"
-    local_dir = "models/llm/Llama-3.2-1B-Instruct"
+    # Get model ID from environment or use the default from settings
+    model_id = os.environ.get("HF_MODEL_ID", HF_MODEL_ID)
+    
+    # Extract model name for the local directory
+    model_name = model_id.split('/')[-1]
+    local_dir = f"models/llm/{model_name}"
     
     try:
-        logger.info(f"Starting download of {repo_id}...")
+        logger.info(f"Starting download of {model_id}...")
         
         # Download model files
         model_path = snapshot_download(
-            repo_id=repo_id,
+            repo_id=model_id,
             local_dir=local_dir,
             local_dir_use_symlinks=False,
             token=hf_token
@@ -58,6 +61,9 @@ if __name__ == "__main__":
     
     success = download_llama_model()
     if success:
-        logger.info("Model download complete. You can now use the Llama-3.2-1B-Instruct model.")
+        # Get the model name from the environment or settings
+        model_id = os.environ.get("HF_MODEL_ID", HF_MODEL_ID)
+        model_name = model_id.split('/')[-1]
+        logger.info(f"Model download complete. You can now use the {model_name} model.")
     else:
         logger.error("Failed to download the model. Please check the logs for details.") 

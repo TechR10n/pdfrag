@@ -19,8 +19,8 @@ else
 fi
 
 echo -e "\n${YELLOW}Checking Flask App health...${NC}"
-if curl -s http://localhost:8000/api/health > /dev/null; then
-    FLASK_APP_HEALTH=$(curl -s http://localhost:8000/api/health)
+if curl -s http://localhost:8001/api/health > /dev/null; then
+    FLASK_APP_HEALTH=$(curl -s http://localhost:8001/api/health)
     echo -e "${GREEN}Flask App is up and running!${NC}"
     echo "Health response: $FLASK_APP_HEALTH"
 else
@@ -28,7 +28,7 @@ else
 fi
 
 echo -e "\n${YELLOW}Testing API with a sample question...${NC}"
-API_RESPONSE=$(curl -s -X POST -H "Content-Type: application/json" -d '{"question":"What is RAG?"}' http://localhost:8000/api/ask)
+API_RESPONSE=$(curl -s -X POST -H "Content-Type: application/json" -d '{"question":"What is RAG?"}' http://localhost:8001/api/ask)
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}API is responding to questions!${NC}"
     echo "Response: $API_RESPONSE"

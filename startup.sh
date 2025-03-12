@@ -75,7 +75,7 @@ fi
 
 # Check if Flask app is running
 echo "Checking Flask application..."
-if curl -s http://localhost:8000 > /dev/null; then
+if curl -s http://localhost:8001 > /dev/null; then
     echo -e "${GREEN}Flask application is running.${NC}"
 else
     echo -e "${RED}Flask application is not running. Check Docker logs.${NC}"
@@ -113,7 +113,7 @@ else
 fi
 
 echo -e "${GREEN}All services started!${NC}"
-echo "You can access the web interface at: http://localhost:8000"
+echo "You can access the web interface at: http://localhost:8001"
 echo -e "${YELLOW}Press Ctrl+C to stop all services${NC}"
 
 # Wait for user interrupt

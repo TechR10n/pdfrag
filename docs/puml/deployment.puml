@@ -38,7 +38,7 @@ node "MacMini (M2 Pro)" as macmini {
 }
 
 ' Connections
-User --> macmini : "HTTP 8000"
+User --> macmini : "HTTP 8001"
 macmini --> flask_app_node : "forwards to 8000"
 flask_app --> mlflow_server : "HTTP 5000"
 mlflow_server --> qdrant : "TCP 6333"
@@ -59,11 +59,12 @@ flask_app ..> host_app : "«mount» /rag_app"
 flask_app ..> host_models : "«mount» /models"
 
 ' Note about ports
-note left of macmini
+note right of macmini
   Exposed Ports:
-  - 8000: Flask App
+  - 8001: Flask App
   - 5001: MLflow (maps to 5000)
-  - 6333, 6334: Qdrant
+  - 5002: Model Server (maps to 5000)
+  - 6333: Vector DB
 end note
 
 @enduml

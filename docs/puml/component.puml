@@ -108,7 +108,7 @@ note left of flask #LightCoral
   **Build**: Custom image from flask-app/Dockerfile
   **Base Image**: python:3.10-slim
   **Ports**:
-  - External 8000 -> Internal 8000 (Web Server)
+  - External 8001 -> Internal 8000 (Web Server)
   **Volume Mappings**:
   - Host ./data -> /flask_app/data
   - Host ./app -> /flask_app/app
@@ -168,5 +168,12 @@ legend right
 | <back:#Wheat> Host Dirs </back> |
 | <back:#LightGray> Network </back> |
 end legend
+
+note "Port Mappings" as port_note
+- External 8001 -> Internal 8000 (Web Server)
+- External 5001 -> Internal 5000 (MLflow)
+- External 5002 -> Internal 5000 (Model Server)
+- External 6333 -> Internal 6333 (Vector DB)
+end note
 
 @enduml
