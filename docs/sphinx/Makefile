@@ -44,6 +44,12 @@ latexpdf:
 	@cd $(BUILDDIR)/latex && make PDFLATEX=pdflatex
 	@echo "PDF output is in $(BUILDDIR)/latex."
 
+# Generate only LaTeX files without building PDF
+latexonly:
+	@echo "Generating LaTeX files only..."
+	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@echo "LaTeX files are in $(BUILDDIR)/latex."
+
 # Default PDF generation - uses LaTeX if available, falls back to rinohtype
 pdf:
 	@if command -v pdflatex >/dev/null 2>&1; then \

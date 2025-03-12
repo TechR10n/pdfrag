@@ -28,6 +28,40 @@ def run_command(command, cwd=None):
         print(f"Error message: {e.stderr}")
         return False
 
+def run_prepare_latex():
+    """Run the prepare_latex.sh script to fix LaTeX issues."""
+    script_path = Path("app/scripts/prepare_latex.sh")
+    if not script_path.exists():
+        print(f"Warning: prepare_latex.sh not found at {script_path}")
+        return False
+    
+    print("Running prepare_latex.sh to fix LaTeX issues...")
+    success = run_command(["bash", str(script_path)])
+    
+    # Also run fix_tex.py on the generated LaTeX files
+    fix_tex_path = Path("app/scripts/fix_tex.py")
+    if fix_tex_path.exists():
+        print("Running fix_tex.py to fix LaTeX issues...")
+        latex_dir = Path("docs/sphinx/build/latex")
+        if latex_dir.exists():
+            for tex_file in latex_dir.glob("*.tex"):
+                if "pdfragsystem" in tex_file.name:
+                    print(f"Fixing LaTeX issues in {tex_file}...")
+                    run_command(["python", str(fix_tex_path), str(tex_file)])
+    
+    # Also run fix_bbbk.py to specifically fix \Bbbk issues
+    fix_bbbk_path = Path("app/scripts/fix_bbbk.py")
+    if fix_bbbk_path.exists():
+        print("Running fix_bbbk.py to fix \\Bbbk issues...")
+        latex_dir = Path("docs/sphinx/build/latex")
+        if latex_dir.exists():
+            for tex_file in latex_dir.glob("*.tex"):
+                if "pdfragsystem" in tex_file.name:
+                    print(f"Fixing \\Bbbk issues in {tex_file}...")
+                    run_command(["python", str(fix_bbbk_path), str(tex_file)])
+    
+    return success
+
 def build_docs(format_type="html", clean=False, api_only=False):
     """Build Sphinx documentation in the specified format."""
     sphinx_dir = Path("docs/sphinx")
@@ -165,116 +199,128 @@ This section contains the API reference for the PDF RAG System.
     # Build documentation in the specified format
     print(f"Building documentation in {format_type} format...")
     
+    success = True
+    
     if format_type == "pdf":
+        # For PDF, run prepare_latex.sh first to fix LaTeX issues
+        if not run_prepare_latex():
+            print("Warning: prepare_latex.sh failed or was not found. Continuing with PDF build anyway...")
+        
         # For PDF, we need to run latexpdf
-        # First, ensure all required LaTeX packages are installed
-        if sys.platform == "darwin":  # macOS
-            print("Checking LaTeX installation on macOS...")
-            # Check if pdflatex is available
-            try:
-                result = subprocess.run(["pdflatex", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
-                print(f"Found pdflatex: {result.stdout.decode().splitlines()[0]}")
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                print("pdflatex not found. Please install MacTeX from https://tug.org/mactex/")
-                return False
-            except subprocess.TimeoutExpired:
-                print("pdflatex check timed out. Continuing anyway...")
+        print("Building PDF documentation...")
         
-        print("Running LaTeX build with timeout protection...")
-        
-        # Initialize success variable
-        success = False
-        
-        # Run latexpdf with a timeout to prevent hanging
         try:
-            # First, try to build the LaTeX files without running pdflatex
-            run_command([make_command, "latex", "SPHINXOPTS=-v"], cwd=sphinx_dir)
-            
-            # Now run pdflatex directly on the generated .tex file with a timeout
+            # Build the LaTeX files
             latex_dir = sphinx_dir / "build/latex"
-            tex_files = list(latex_dir.glob("*.tex"))
+            latex_dir.mkdir(parents=True, exist_ok=True)
             
-            if tex_files:
-                main_tex_file = tex_files[0]
-                print(f"Running pdflatex on {main_tex_file}...")
-                
-                # Run pdflatex twice to resolve references
-                pdflatex_success = True
-                for i in range(2):
-                    try:
-                        subprocess.run(
-                            ["pdflatex", main_tex_file.name], 
-                            cwd=latex_dir,
-                            check=True, 
-                            stdout=subprocess.PIPE, 
-                            stderr=subprocess.PIPE,
-                            timeout=60  # 60 second timeout
-                        )
-                    except subprocess.TimeoutExpired:
-                        print(f"pdflatex run {i+1} timed out. PDF may be incomplete.")
-                        pdflatex_success = False
-                        break
-                    except subprocess.CalledProcessError:
-                        print(f"pdflatex run {i+1} failed. PDF may be incomplete.")
-                        pdflatex_success = False
-                        break
-                
-                # Check if PDF was generated
-                pdf_files = list(latex_dir.glob("*.pdf"))
-                if pdf_files:
-                    print(f"PDF documentation built successfully: {pdf_files[0]}")
-                    # Copy the PDF to a more accessible location
-                    output_pdf = sphinx_dir / "build/pdfragsystem.pdf"
-                    shutil.copy(pdf_files[0], output_pdf)
-                    print(f"PDF copied to: {output_pdf}")
-                    success = True
-                else:
-                    print("PDF generation failed. Check the LaTeX directory for errors.")
-                    success = False
-            else:
-                print("No .tex files found in the LaTeX build directory.")
-                success = False
-                
-        except Exception as e:
-            print(f"Error during PDF generation: {str(e)}")
-            print("Trying alternative approach...")
-            success = False
-            
-            # Try the direct make latexpdf command as a fallback
+            # Run latexpdf with a timeout to prevent hanging
             try:
-                subprocess.run(
-                    [make_command, "latexpdf"], 
-                    cwd=sphinx_dir,
-                    check=True, 
-                    stdout=subprocess.PIPE, 
-                    stderr=subprocess.PIPE,
-                    timeout=120  # 2 minute timeout
-                )
+                # First, try to build the LaTeX files without running pdflatex
+                run_command([make_command, "latex"], cwd=sphinx_dir)
                 
-                # Check for PDF files
-                pdf_path = sphinx_dir / "build/latex/pdfragsystem.pdf"
-                if pdf_path.exists():
-                    print(f"PDF documentation built successfully: {pdf_path}")
-                    success = True
-                else:
-                    # Try to find the PDF file
-                    pdf_files = list(sphinx_dir.glob("build/latex/*.pdf"))
+                # Run fix_tex.py on the generated LaTeX files
+                fix_tex_path = Path("app/scripts/fix_tex.py")
+                if fix_tex_path.exists():
+                    for tex_file in latex_dir.glob("*.tex"):
+                        if "pdfragsystem" in tex_file.name:
+                            print(f"Fixing LaTeX issues in {tex_file}...")
+                            run_command(["python", str(fix_tex_path), str(tex_file)])
+                
+                # Run fix_bbbk.py to specifically fix \Bbbk issues
+                fix_bbbk_path = Path("app/scripts/fix_bbbk.py")
+                if fix_bbbk_path.exists():
+                    for tex_file in latex_dir.glob("*.tex"):
+                        if "pdfragsystem" in tex_file.name:
+                            print(f"Fixing \\Bbbk issues in {tex_file}...")
+                            run_command(["python", str(fix_bbbk_path), str(tex_file)])
+                
+                # Now run pdflatex directly on the generated .tex file with a timeout
+                main_tex_file = None
+                for tex_file in latex_dir.glob("*.tex"):
+                    if "pdfragsystem" in tex_file.name:
+                        main_tex_file = tex_file
+                        break
+                
+                if main_tex_file:
+                    print(f"Running pdflatex on {main_tex_file}...")
+                    
+                    # Run pdflatex twice to resolve references
+                    pdflatex_success = True
+                    for i in range(2):
+                        try:
+                            subprocess.run(
+                                ["pdflatex", main_tex_file.name],
+                                check=True,
+                                cwd=latex_dir,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                timeout=120  # 2 minute timeout
+                            )
+                        except subprocess.TimeoutExpired:
+                            print(f"pdflatex run {i+1} timed out. PDF may be incomplete.")
+                            pdflatex_success = False
+                            break
+                        except subprocess.CalledProcessError:
+                            print(f"pdflatex run {i+1} failed. PDF may be incomplete.")
+                            pdflatex_success = False
+                            break
+                    
+                    # Check if PDF was generated
+                    pdf_files = list(latex_dir.glob("*.pdf"))
                     if pdf_files:
                         print(f"PDF documentation built successfully: {pdf_files[0]}")
+                        # Copy the PDF to a more accessible location
+                        output_pdf = sphinx_dir / "build/pdfragsystem.pdf"
+                        shutil.copy(pdf_files[0], output_pdf)
+                        print(f"PDF copied to: {output_pdf}")
+                    else:
+                        if not pdflatex_success:
+                            print("PDF generation failed. Check the LaTeX directory for errors.")
+                            success = False
+                else:
+                    print("Main .tex file not found in the LaTeX directory.")
+                    success = False
+            
+            except Exception as e:
+                print(f"Error during PDF generation: {str(e)}")
+                success = False
+                
+                # Try the direct make latexpdf command as a fallback
+                try:
+                    print("Trying alternative PDF generation method...")
+                    run_command(
+                        [make_command, "latexpdf"],
+                        cwd=sphinx_dir
+                    )
+                    
+                    # Check for PDF files
+                    pdf_path = sphinx_dir / "build/latex/pdfragsystem.pdf"
+                    if pdf_path.exists():
+                        print(f"PDF documentation built successfully: {pdf_path}")
                         success = True
                     else:
-                        print(f"PDF file not found at expected location: {pdf_path}")
-                        print("Check the latex directory for the generated PDF.")
-                        success = False
-            except subprocess.TimeoutExpired:
-                print("PDF generation timed out after 2 minutes.")
-                print("This could be due to a LaTeX package issue or a complex document.")
-                print("Try running the following command manually:")
-                print(f"cd {sphinx_dir} && make latexpdf")
-                success = False
-            except Exception as e:
-                print(f"Error during alternative PDF generation: {str(e)}")
-                success = False
+                        # Try to find the PDF file
+                        pdf_files = list(sphinx_dir.glob("build/latex/*.pdf"))
+                        if pdf_files:
+                            print(f"PDF documentation built successfully: {pdf_files[0]}")
+                            success = True
+                        else:
+                            print(f"PDF file not found at expected location: {pdf_path}")
+                            print("Check the latex directory for the generated PDF.")
+                            success = False
+                
+                except subprocess.TimeoutExpired:
+                    print("PDF generation timed out after 2 minutes.")
+                    print("You can try to build the PDF manually with:")
+                    print(f"cd {sphinx_dir} && make latexpdf")
+                    success = False
+                except Exception as e:
+                    print(f"Error during alternative PDF generation: {str(e)}")
+                    success = False
+        except Exception as e:
+            print(f"Error building PDF documentation: {str(e)}")
+            success = False
     elif format_type == "markdown":
         # For Markdown, we need a custom target
         success = run_command([make_command, "markdown"], cwd=sphinx_dir)

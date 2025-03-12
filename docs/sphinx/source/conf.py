@@ -2,11 +2,10 @@
 
 import os
 import sys
-import shutil
-import glob
-import subprocess
 from pathlib import Path
-sys.path.insert(0, os.path.abspath('../../..'))
+
+# Point to the project root (assuming conf.py is in docs/sphinx/source)
+sys.path.insert(0, os.path.abspath('../..'))  # Adjust if needed
 
 # -- Project information -----------------------------------------------------
 project = 'PDF RAG System'
@@ -19,58 +18,48 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
-    'sphinx.ext.intersphinx',
     'sphinx.ext.autosummary',
     'sphinx_markdown_tables',
     'myst_parser',
     'sphinxcontrib.bibtex',
     'sphinx.ext.imgconverter',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.mathjax',
 ]
 
 # Configuration for sphinxcontrib.bibtex
-bibtex_bibfiles = []  # Empty list since we're not using bibliography files yet
+bibtex_bibfiles = ['references.bib']
 bibtex_default_style = 'plain'
 bibtex_reference_style = 'author_year'
-
-# Try to add rinohtype extension if available
-try:
-    import rinoh
-    extensions.append('rinoh.frontend.sphinx')
-    print("rinohtype extension loaded successfully")
-except ImportError:
-    try:
-        import rinohtype
-        extensions.append('rinohtype.frontend.sphinx')
-        print("rinohtype extension loaded successfully (alternative import)")
-    except ImportError:
-        print("Warning: rinohtype not available. PDF generation with rinohtype will be disabled.")
 
 # Auto-generate API documentation
 autosummary_generate = True
 autodoc_default_options = {
     'members': True,
     'undoc-members': True,
-    'show-inheritance': True,
-    'special-members': '__init__',
-    'imported-members': True,
     'private-members': True,
+    'special-members': '__init__,__call__',
+    'show-inheritance': True,
 }
-
-# Make sure autodoc can find the modules
-autodoc_mock_imports = []
+autodoc_mock_imports = ['numpy', 'pandas', 'torch', 'sklearn']
 autoclass_content = 'both'
 autodoc_typehints = 'description'
 autodoc_typehints_format = 'short'
 autodoc_member_order = 'bysource'
 
-# MyST Parser settings
+# MyST Parser settings (for Markdown support)
 myst_enable_extensions = [
     'colon_fence',
     'deflist',
+    'tasklist',
+    'smartquotes',
+    'replacements',
+    'dollarmath',
+    'amsmath',
 ]
 
 templates_path = ['_templates']
-exclude_patterns = []
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints']
 
 # -- Options for HTML output -------------------------------------------------
 html_theme = 'sphinx_rtd_theme'
@@ -79,60 +68,40 @@ html_theme_options = {
     'navigation_depth': 4,
     'titles_only': False,
     'display_version': True,
+    'collapse_navigation': False,
+    'sticky_navigation': True,
 }
 
 # -- Options for Markdown support --------------------------------------------
 source_suffix = {
     '.rst': 'restructuredtext',
     '.md': 'markdown',
+    '.txt': 'markdown',
 }
-
-# -- Options for PDF output with rinohtype -----------------------------------
-# Only configure if rinohtype is available
-try:
-    import rinoh
-    rinoh_documents = [
-        {
-            'doc': 'index',
-            'target': 'pdfragsystem',
-            'title': 'PDF RAG System Documentation',
-            'author': 'Ryan Hammang',
-            'toctree_only': False,
-        }
-    ]
-except ImportError:
-    pass
 
 # -- Options for LaTeX PDF output -------------------------------------------
 latex_engine = 'pdflatex'
-latex_elements = {
-    'preamble': r'''
-\usepackage{graphicx}
-\usepackage[utf8]{inputenc}
-\usepackage{xcolor}
-\usepackage{fancyvrb}
-\usepackage{tabulary}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{capt-of}
-\usepackage{needspace}
-\usepackage{hyperref}
-''',
-    'figure_align': 'H',
-    'pointsize': '11pt',
-    'papersize': 'letterpaper',
-    'extraclassoptions': 'openany,oneside',
-    'babel': r'\usepackage[english]{babel}',
-    'maketitle': r'\maketitle',
-    'tableofcontents': r'\tableofcontents',
-    'fncychap': r'\usepackage[Bjarne]{fncychap}',
-    'printindex': r'\printindex',
-}
 
-# -- Simple SVG handling for LaTeX output -----------------------------------
-# This approach simply tells Sphinx to use PDF instead of SVG for LaTeX output
-def setup(app):
-    pass
+# Basic LaTeX settings
+latex_additional_files = []
+latex_logo = None
+latex_show_pagerefs = True
+latex_show_urls = 'inline'
+latex_appendices = ['appendix']
+latex_domain_indices = True
+latex_use_xindy = False  # Use makeindex instead of xindy
+
+# Book-specific LaTeX settings
+latex_documents = [
+    (
+        'index',
+        'pdfragsystem.tex',
+        'PDF RAG System Documentation',
+        'Ryan Hammang',
+        'manual',
+        True
+    )
+]
 
 # -- Extension configuration -------------------------------------------------
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
@@ -150,4 +119,18 @@ napoleon_use_ivar = True
 napoleon_use_param = True
 napoleon_use_rtype = True
 napoleon_use_keyword = True
-napoleon_custom_sections = None
+
+# -- Book-like chapter settings ----------------------------------------------
+numfig = True
+numfig_format = {
+    'figure': 'Figure %s',
+    'table': 'Table %s',
+    'code-block': 'Listing %s',
+    'section': 'Section %s',
+}
+numfig_secnum_depth = 2
+todo_include_todos = True
+
+# Add CSS file
+def setup(app):
+    app.add_css_file('custom.css')
