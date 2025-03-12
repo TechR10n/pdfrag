@@ -15,6 +15,23 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
+# Function to display help
+show_help() {
+  echo "Usage: ./startup.sh [OPTIONS]"
+  echo ""
+  echo "Options:"
+  echo "  --reset-vector-db    Reset the vector database (removes all indexed documents)"
+  echo "  --rebuild-index      Rebuild the vector index"
+  echo "  --help               Display this help message"
+  echo ""
+  echo "Examples:"
+  echo "  ./startup.sh                           # Start the application normally"
+  echo "  ./startup.sh --reset-vector-db         # Reset the vector database and start the application"
+  echo "  ./startup.sh --rebuild-index           # Rebuild the vector index and start the application"
+  echo "  ./startup.sh --reset-vector-db --rebuild-index  # Reset and rebuild the vector database"
+  echo ""
+}
+
 # Parse command line arguments
 RESET_VECTOR_DB=false
 REBUILD_INDEX=false
@@ -29,8 +46,15 @@ for arg in "$@"; do
       REBUILD_INDEX=true
       shift
       ;;
+    --help)
+      show_help
+      exit 0
+      ;;
     *)
       # Unknown option
+      echo -e "${RED}Unknown option: $arg${NC}"
+      show_help
+      exit 1
       ;;
   esac
 done
@@ -85,22 +109,22 @@ if [ "$RESET_VECTOR_DB" = true ]; then
   echo -e "${GREEN}Vector-db container started.${NC}"
   
   # Wait for the container to be healthy
-  echo -e "${YELLOW}Waiting for vector-db to be healthy...${NC}"
+  echo -e "${YELLOW}Waiting for vector-db to be ready...${NC}"
   attempt=1
   max_attempts=10
-  until [ $attempt -gt $max_attempts ] || docker-compose ps | grep -q "vector-db.*healthy"; do
-    echo -e "${YELLOW}Waiting for vector-db to be healthy (attempt $attempt/$max_attempts)...${NC}"
+  until [ $attempt -gt $max_attempts ] || docker-compose ps | grep -q "vector-db.*Up"; do
+    echo -e "${YELLOW}Waiting for vector-db to be ready (attempt $attempt/$max_attempts)...${NC}"
     sleep 5
     attempt=$((attempt+1))
   done
   
   if [ $attempt -gt $max_attempts ]; then
-    echo -e "${RED}Vector-db did not become healthy after $max_attempts attempts.${NC}"
+    echo -e "${RED}Vector-db did not become ready after $max_attempts attempts.${NC}"
     echo -e "${YELLOW}You may need to check the logs with: docker-compose logs vector-db${NC}"
     echo -e "${RED}Startup completed with warnings.${NC}"
     exit 1
   else
-    echo -e "${GREEN}Vector-db is now healthy!${NC}"
+    echo -e "${GREEN}Vector-db is now ready!${NC}"
     
     # Set rebuild index to true since we reset the database
     REBUILD_INDEX=true
@@ -111,22 +135,22 @@ else
   docker-compose up -d
   echo -e "${GREEN}All containers started.${NC}"
   
-  # Wait for the vector-db container to be healthy
-  echo -e "${YELLOW}Waiting for vector-db to be healthy...${NC}"
+  # Wait for the vector-db container to be ready
+  echo -e "${YELLOW}Waiting for vector-db to be ready...${NC}"
   attempt=1
   max_attempts=10
-  until [ $attempt -gt $max_attempts ] || docker-compose ps | grep -q "vector-db.*healthy"; do
-    echo -e "${YELLOW}Waiting for vector-db to be healthy (attempt $attempt/$max_attempts)...${NC}"
+  until [ $attempt -gt $max_attempts ] || docker-compose ps | grep -q "vector-db.*Up"; do
+    echo -e "${YELLOW}Waiting for vector-db to be ready (attempt $attempt/$max_attempts)...${NC}"
     sleep 5
     attempt=$((attempt+1))
   done
   
   if [ $attempt -gt $max_attempts ]; then
-    echo -e "${RED}Vector-db did not become healthy after $max_attempts attempts.${NC}"
+    echo -e "${RED}Vector-db did not become ready after $max_attempts attempts.${NC}"
     echo -e "${YELLOW}You may need to check the logs with: docker-compose logs vector-db${NC}"
     echo -e "${RED}Startup completed with warnings.${NC}"
   else
-    echo -e "${GREEN}Vector-db is now healthy!${NC}"
+    echo -e "${GREEN}Vector-db is now ready!${NC}"
   fi
 fi
 

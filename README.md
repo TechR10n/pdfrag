@@ -10,47 +10,44 @@ PDFrag is a system for retrieving information from PDF documents using a Retriev
 
 ## Setup
 
-1. Clone the repository:
+### For Ubuntu Users
+
+Run the setup script which will install all dependencies, set up the environment, and initialize the vector database:
+
+```bash
+./setup_ubuntu.sh
+```
+
+You can view all available options with:
+
+```bash
+./setup_ubuntu.sh --help
+```
+
+### For Other Operating Systems
+
+1. Install Docker and Docker Compose
+2. Create a `.env` file from the template:
    ```bash
-   git clone https://github.com/yourusername/pdfrag.git
-   cd pdfrag
+   cp .env.example .env
    ```
-
-2. Run the setup script (for Ubuntu):
+3. Edit the `.env` file and add your Hugging Face token:
    ```bash
-   ./setup_ubuntu.sh
+   HUGGINGFACE_TOKEN=your_token_here
    ```
-   
-   This script will:
-   - Install all required dependencies (Docker, Docker Compose, etc.)
-   - Create necessary directories
-   - Set up the environment file
-   - Download required models
-   - Initialize the vector database
-   - Build and start all containers
-   - Optionally index sample documents
-
-   For other operating systems, follow these manual steps:
-   
-   a. Create a `.env` file from the example:
-      ```bash
-      cp .env.example .env
-      ```
-
-   b. Edit the `.env` file and add your Hugging Face token:
-      ```
-      HF_TOKEN=your_huggingface_token_here
-      ```
-
-   c. Download the required models:
-      ```bash
-      ./download_models.sh
-      ```
-
-   d. Build and start the Docker containers:
-      ```bash
-      docker-compose up -d --build
-      ```
+4. Create directories for documents and models:
+   ```bash
+   mkdir -p data/documents data/vectors models
+   chmod 777 data/documents data/vectors models
+   ```
+5. Download the required models:
+   ```bash
+   python -m app.download_models
+   ```
+6. Build and start the Docker containers:
+   ```bash
+   docker-compose up -d
+   ```
 
 ## Starting the Application
 
@@ -60,30 +57,30 @@ Use the startup script to start the application:
 ./startup.sh
 ```
 
-This script will:
-- Start all Docker containers
-- Ensure the vector database directory exists
-- Wait for services to be healthy
-- Provide access to the web interface
+You can view all available options with:
+
+```bash
+./startup.sh --help
+```
 
 ### Vector Database Management
 
-The startup script includes options for vector database management:
+The startup script provides options for managing the vector database:
 
-1. **Reset the vector database** (clears all indexed documents):
-   ```bash
-   ./startup.sh --reset-vector-db
-   ```
+- To reset the vector database (removes all indexed documents):
+  ```bash
+  ./startup.sh --reset-vector-db
+  ```
 
-2. **Reset and rebuild the index**:
-   ```bash
-   ./startup.sh --reset-vector-db --rebuild-index
-   ```
+- To rebuild the vector index:
+  ```bash
+  ./startup.sh --rebuild-index
+  ```
 
-3. **Just rebuild the index** (without resetting):
-   ```bash
-   ./startup.sh --rebuild-index
-   ```
+- To perform a complete reset and rebuild:
+  ```bash
+  ./startup.sh --reset-vector-db --rebuild-index
+  ```
 
 ## Usage
 
@@ -168,6 +165,22 @@ If you encounter issues with the model server:
 
 3. **Corrupted vector database**:
    - If you see errors about missing shards or corrupted data in the logs, use `./startup.sh --reset-vector-db`
+
+### Advanced Diagnostics
+
+For more detailed diagnostics of vector database connection issues, you can use the included diagnostic script:
+
+```bash
+python check_vector_db.py
+```
+
+This script performs comprehensive checks including:
+- DNS resolution testing
+- Port accessibility verification
+- Connection testing
+- Docker container status checks
+
+It provides detailed output and suggestions for fixing any detected issues.
 
 ## Architecture
 

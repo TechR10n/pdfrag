@@ -9,6 +9,41 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
+# Function to display help
+show_help() {
+  echo "Usage: ./setup_ubuntu.sh [OPTIONS]"
+  echo ""
+  echo "Options:"
+  echo "  --help               Display this help message"
+  echo ""
+  echo "Description:"
+  echo "  This script sets up the PDFrag application on Ubuntu systems by:"
+  echo "  - Installing required dependencies (Docker, Docker Compose, Python packages)"
+  echo "  - Creating necessary directories for documents and models"
+  echo "  - Setting up the environment file"
+  echo "  - Downloading required models"
+  echo "  - Initializing the vector database"
+  echo "  - Building and starting Docker containers"
+  echo "  - Optionally indexing sample documents"
+  echo ""
+}
+
+# Parse command line arguments
+for arg in "$@"; do
+  case $arg in
+    --help)
+      show_help
+      exit 0
+      ;;
+    *)
+      # Unknown option
+      echo -e "${RED}Unknown option: $arg${NC}"
+      show_help
+      exit 1
+      ;;
+  esac
+done
+
 echo -e "${YELLOW}Setting up PDFrag on Ubuntu...${NC}"
 
 # Update system packages
@@ -103,22 +138,22 @@ docker-compose build
 docker-compose up -d
 echo -e "${GREEN}Containers built and started.${NC}"
 
-# Wait for the vector-db container to be healthy
-echo -e "${YELLOW}Waiting for vector-db to be healthy...${NC}"
+# Wait for the vector database to be healthy
+echo -e "${YELLOW}Waiting for vector database to be ready...${NC}"
 attempt=1
 max_attempts=10
-until [ $attempt -gt $max_attempts ] || docker-compose ps | grep -q "vector-db.*healthy"; do
-  echo -e "${YELLOW}Waiting for vector-db to be healthy (attempt $attempt/$max_attempts)...${NC}"
-  sleep 5
-  attempt=$((attempt+1))
+until [ $attempt -gt $max_attempts ] || docker-compose ps | grep -q "vector-db.*Up"; do
+    echo -e "${YELLOW}Waiting for vector database to be ready (attempt $attempt/$max_attempts)...${NC}"
+    sleep 5
+    attempt=$((attempt+1))
 done
 
 if [ $attempt -gt $max_attempts ]; then
-  echo -e "${RED}Vector-db did not become healthy after $max_attempts attempts.${NC}"
-  echo -e "${YELLOW}You may need to check the logs with: docker-compose logs vector-db${NC}"
-  echo -e "${RED}Setup completed with warnings.${NC}"
+    echo -e "${RED}Vector database did not become ready after $max_attempts attempts.${NC}"
+    echo -e "${YELLOW}You may need to check the logs with: docker-compose logs vector-db${NC}"
+    echo -e "${RED}Setup completed with warnings.${NC}"
 else
-  echo -e "${GREEN}Vector-db is now healthy!${NC}"
+    echo -e "${GREEN}Vector database is now ready!${NC}"
   
   # Ask if the user wants to index sample documents
   echo -e "${YELLOW}Do you want to index sample documents now? (y/n)${NC}"
