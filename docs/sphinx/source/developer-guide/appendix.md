@@ -4,8 +4,7 @@ This appendix contains additional information and resources.
 
 ## Development Notes
 
-```{include} dev_notes.md
-```
+For detailed development notes, please refer to the [Developer Notes for PDF RAG System](dev_notes.md) section.
 
 ## References
 

@@ -10,27 +10,9 @@ This is the complete documentation for the PDF RAG System project.
    :caption: Contents:
    :numbered:
 
-   introduction
-   installation
-   usage
-   architecture
-   development
-   
-.. toctree::
-   :maxdepth: 1
-   :caption: Advanced Topics:
-   
-   dev_notes
-   appendix
-
-API Documentation
-=================
-
-.. toctree::
-   :maxdepth: 2
-   :caption: API Reference:
-
-   api/index
+   user-guide/index
+   developer-guide/index
+   api-reference/index
 
 Indices and tables
 ==================

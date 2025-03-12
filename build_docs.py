@@ -15,6 +15,7 @@ import subprocess
 from pathlib import Path
 import tempfile
 import glob
+import re
 
 def ensure_dependencies():
     """Install required dependencies for documentation."""
@@ -99,27 +100,30 @@ def convert_svg_to_pdf(svg_files, static_dir):
                     check=True
                 )
                 converted = True
-                print(f"  ✓ Converted using Inkscape")
             except subprocess.CalledProcessError as e:
-                print(f"  ✗ Inkscape failed: {e}")
+                print(f"Inkscape conversion failed: {e}")
         
-        # Method 2: cairosvg (good fallback)
+        # Method 2: CairoSVG (fallback)
         if have_cairosvg and not converted:
             try:
                 cairosvg.svg2pdf(url=str(svg_file), write_to=str(pdf_path))
                 converted = True
-                print(f"  ✓ Converted using cairosvg")
             except Exception as e:
-                print(f"  ✗ cairosvg failed: {e}")
+                print(f"CairoSVG conversion failed: {e}")
         
-        # Check if conversion succeeded
         if not converted:
-            print(f"  ⚠ WARNING: Could not convert {svg_file} to PDF")
-        elif not pdf_path.exists():
-            print(f"  ⚠ WARNING: PDF file {pdf_path} was not created")
+            print(f"WARNING: Could not convert {svg_file} to PDF!")
 
-def modify_latex_configuration():
-    """Add SVG handling to conf.py for proper LaTeX output."""
+def cleanup_latex_md_files():
+    """Remove all *_latex.md files as they are no longer needed."""
+    print("Cleaning up redundant LaTeX markdown files...")
+    source_dir = Path("docs/sphinx/source")
+    for latex_md in source_dir.glob("*_latex.md"):
+        print(f"Removing {latex_md}")
+        latex_md.unlink()
+
+def modify_conf_for_unified_build():
+    """Modify conf.py to properly handle markdown for both HTML and LaTeX."""
     conf_path = Path("docs/sphinx/source/conf.py")
     
     # Check if conf.py exists
@@ -131,24 +135,43 @@ def modify_latex_configuration():
     with open(conf_path, "r") as f:
         conf_content = f.read()
     
-    # Check if the LaTeX handling is already there
-    if "sphinx.ext.imgconverter" in conf_content:
-        print("LaTeX image handling already configured in conf.py")
-        return
+    # Add the necessary configurations if not already present
+    updates_needed = []
     
-    # Add SVG handling for LaTeX output
-    with open(conf_path, "a") as f:
-        f.write("\n\n# Add imgconverter for SVG handling in LaTeX output\n")
-        f.write("extensions.append('sphinx.ext.imgconverter')\n")
-        f.write("\n# LaTeX configuration for SVG handling\n")
-        f.write("latex_engine = 'pdflatex'\n")
-        f.write("latex_elements = {\n")
-        f.write("    'preamble': r'''\n")
-        f.write("\\usepackage{graphicx}\n")
-        f.write("'''\n")
-        f.write("}\n")
+    if "sphinx.ext.imgconverter" not in conf_content:
+        updates_needed.append("\n# Add imgconverter for SVG handling in LaTeX output")
+        updates_needed.append("extensions.append('sphinx.ext.imgconverter')")
     
-    print("Updated conf.py with LaTeX image handling configuration")
+    if "latex_engine = 'pdflatex'" not in conf_content:
+        updates_needed.append("\n# LaTeX configuration")
+        updates_needed.append("latex_engine = 'pdflatex'")
+    
+    if "latex_elements =" not in conf_content:
+        updates_needed.append("latex_elements = {")
+        updates_needed.append("    'preamble': r'''")
+        updates_needed.append("\\usepackage{graphicx}")
+        updates_needed.append("\\usepackage{adjustbox}")
+        updates_needed.append("    '''")
+        updates_needed.append("}")
+    
+    # Add the patch for handling markdown image paths in LaTeX
+    if "markdown_image_paths = " not in conf_content:
+        updates_needed.append("\n# Fix image paths for markdown in LaTeX output")
+        updates_needed.append("def setup(app):")
+        updates_needed.append("    app.connect('source-read', process_markdown_images)")
+        updates_needed.append("")
+        updates_needed.append("def process_markdown_images(app, docname, source):")
+        updates_needed.append("    if app.builder.format == 'latex':")
+        updates_needed.append("        source[0] = source[0].replace('](../../puml/svg/', '](_static/')")
+    
+    # Apply the updates if needed
+    if updates_needed:
+        with open(conf_path, "a") as f:
+            for line in updates_needed:
+                f.write(f"{line}\n")
+        print("Updated conf.py with unified build configuration")
+    else:
+        print("conf.py already configured for unified build")
 
 def build_documentation():
     """Build the documentation using Sphinx."""
@@ -193,7 +216,10 @@ def build_documentation():
             print(f"Copying {pdf_file} to {pdf_dest}")
             shutil.copy(pdf_file, pdf_dest)
         
-        # Run LaTeX to build PDF (with multiple passes for references)
+        # Save the original directory
+        original_dir = os.getcwd()
+        
+        # Change to the LaTeX directory to run the commands
         os.chdir(latex_dir)
         try:
             # First try with latexmk (best approach)
@@ -204,12 +230,8 @@ def build_documentation():
             for _ in range(3):  # Multiple runs to resolve references
                 subprocess.run(["pdflatex", "-interaction=nonstopmode", "pdfragsystem.tex"], check=True)
         
-        # Copy resulting PDF to the build root for easy access
-        if (latex_dir / "pdfragsystem.pdf").exists():
-            shutil.copy(latex_dir / "pdfragsystem.pdf", build_dir / "pdfragsystem.pdf")
-            print("✓ PDF documentation built with LaTeX!")
-        else:
-            print("⚠ PDF file not found after LaTeX build")
+        # Change back to the original directory
+        os.chdir(original_dir)
     else:
         # Fall back to rinohtype if LaTeX is not available
         print("LaTeX not available, using rinohtype instead...")
@@ -217,15 +239,32 @@ def build_documentation():
             ["sphinx-build", "-b", "rinoh", str(source_dir), str(build_dir / "rinoh")],
             check=True
         )
-        print("✓ PDF documentation built with rinohtype!")
     
     # Print location of output files
     print("\nDocumentation build complete!")
     print(f"HTML: {build_dir}/html/index.html")
-    if (build_dir / "pdfragsystem.pdf").exists():
-        print(f"PDF: {build_dir}/pdfragsystem.pdf")
-    elif (build_dir / "rinoh" / "pdfragsystem.pdf").exists():
-        print(f"PDF: {build_dir}/rinoh/pdfragsystem.pdf")
+    
+    # Check for PDF file in all possible locations
+    pdf_locations = [
+        build_dir / "pdfragsystem.pdf",
+        latex_dir / "pdfragsystem.pdf", 
+        build_dir / "rinoh" / "pdfragsystem.pdf"
+    ]
+    
+    pdf_path = None
+    for loc in pdf_locations:
+        if loc.exists():
+            pdf_path = loc
+            break
+    
+    if pdf_path:
+        # If PDF exists but not in build root, copy it there for easier access
+        if pdf_path != build_dir / "pdfragsystem.pdf":
+            shutil.copy(pdf_path, build_dir / "pdfragsystem.pdf")
+            pdf_path = build_dir / "pdfragsystem.pdf"
+        print(f"PDF: {pdf_path}")
+    else:
+        print("⚠ PDF file not found. Check LaTeX build logs for errors.")
 
 def main():
     """Main function for the documentation build process."""
@@ -233,6 +272,9 @@ def main():
     
     # Ensure dependencies are installed
     ensure_dependencies()
+    
+    # Clean up redundant LaTeX markdown files
+    cleanup_latex_md_files()
     
     # Find SVG files
     svg_files = find_svg_files()
@@ -244,8 +286,8 @@ def main():
     if svg_files:
         convert_svg_to_pdf(svg_files, static_dir)
     
-    # Modify Sphinx configuration for LaTeX
-    modify_latex_configuration()
+    # Modify Sphinx configuration for unified builds
+    modify_conf_for_unified_build()
     
     # Build the documentation
     build_documentation()

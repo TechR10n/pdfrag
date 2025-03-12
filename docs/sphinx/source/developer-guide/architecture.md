@@ -9,20 +9,20 @@ The system is composed of several components that work together to provide the R
 
 ### Usecase Diagram
 
-![Usecase Diagram](../../puml/svg/usecase.svg)
+![Usecase Diagram](../_static/usecase.pdf)
 
 
 ### Class Diagram
 
-![Class Diagram](../../puml/svg/class.svg)
+![Class Diagram](../_static/class.pdf)
 
 
 ### Deployment Diagram
 
-![Deployment Diagram](../../puml/svg/deployment.svg)
+![Deployment Diagram](../_static/deployment.pdf)
 
 
 ### Component Diagram
 
-![Component Diagram](../../puml/svg/component.svg)
+![Component Diagram](../_static/component.pdf)
 

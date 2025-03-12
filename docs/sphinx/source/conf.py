@@ -7,6 +7,9 @@ from pathlib import Path
 # Point to the project root (assuming conf.py is in docs/sphinx/source)
 sys.path.insert(0, os.path.abspath('../..'))  # Adjust if needed
 
+# Point to the project root (assuming conf.py is in docs/sphinx/source)
+sys.path.insert(0, os.path.abspath('../../..'))  # Point to project root
+
 # -- Project information -----------------------------------------------------
 project = 'PDF RAG System'
 copyright = '2025, Ryan Hammang'
@@ -87,7 +90,8 @@ latex_additional_files = []
 latex_logo = None
 latex_show_pagerefs = True
 latex_show_urls = 'inline'
-latex_appendices = ['appendix']
+# Use correct path to appendix with the new structure
+latex_appendices = ['developer-guide/appendix']
 latex_domain_indices = True
 latex_use_xindy = False  # Use makeindex instead of xindy
 
@@ -131,6 +135,98 @@ numfig_format = {
 numfig_secnum_depth = 2
 todo_include_todos = True
 
-# Add CSS file
+# LaTeX elements configuration
+latex_elements = {
+    'preamble': r'''
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{hyperref}
+    ''',
+    # Ensure proper Unicode handling
+    'inputenc': r'\usepackage[utf8]{inputenc}',
+    'fontenc': r'\usepackage[T1]{fontenc}',
+    # Increase document flexibility
+    'babel': r'\usepackage[english]{babel}',
+    # Better figure handling
+    'figure_align': 'htbp',
+}
+
+# Setup function for Sphinx extensions - SINGLE DEFINITION
 def setup(app):
+    # Add CSS file
     app.add_css_file('custom.css')
+    
+    # Connect to source-read event for image path processing
+    app.connect('source-read', process_markdown_images)
+
+# Process markdown images for LaTeX output - SINGLE DEFINITION
+def process_markdown_images(app, docname, source):
+    if app.builder.format == 'latex':
+        # Handle multiple path patterns for images
+        replacements = [
+            ('](../../puml/svg/', '](_static/'),  # Original pattern
+            ('](/_static/', '](_static/'),        # Absolute path
+            ('](../_static/', '](_static/'),      # Parent directory
+            ('](./static/', '](_static/'),        # Local directory
+            ('./_static/', '_static/'),           # Developer guide local path
+            ('.pdf)', '.pdf)'),                   # Ensure PDF extension is preserved
+        ]
+        
+        for old, new in replacements:
+            source[0] = source[0].replace(old, new)
+
+# Fix image paths for markdown in LaTeX output
+def setup(app):
+    app.connect('source-read', process_markdown_images)
+
+def process_markdown_images(app, docname, source):
+    if app.builder.format == 'latex':
+        source[0] = source[0].replace('](../../puml/svg/', '](_static/')
+
+# Fix image paths for markdown in LaTeX output
+def setup(app):
+    app.connect('source-read', process_markdown_images)
+
+def process_markdown_images(app, docname, source):
+    if app.builder.format == 'latex':
+        source[0] = source[0].replace('](../../puml/svg/', '](_static/')
+
+# Fix image paths for markdown in LaTeX output
+def setup(app):
+    app.connect('source-read', process_markdown_images)
+
+def process_markdown_images(app, docname, source):
+    if app.builder.format == 'latex':
+        source[0] = source[0].replace('](../../puml/svg/', '](_static/')
+
+# Fix image paths for markdown in LaTeX output
+def setup(app):
+    app.connect('source-read', process_markdown_images)
+
+def process_markdown_images(app, docname, source):
+    if app.builder.format == 'latex':
+        source[0] = source[0].replace('](../../puml/svg/', '](_static/')
+
+# Fix image paths for markdown in LaTeX output
+def setup(app):
+    app.connect('source-read', process_markdown_images)
+
+def process_markdown_images(app, docname, source):
+    if app.builder.format == 'latex':
+        source[0] = source[0].replace('](../../puml/svg/', '](_static/')
+
+# Fix image paths for markdown in LaTeX output
+def setup(app):
+    app.connect('source-read', process_markdown_images)
+
+def process_markdown_images(app, docname, source):
+    if app.builder.format == 'latex':
+        source[0] = source[0].replace('](../../puml/svg/', '](_static/')
+
+# Fix image paths for markdown in LaTeX output
+def setup(app):
+    app.connect('source-read', process_markdown_images)
+
+def process_markdown_images(app, docname, source):
+    if app.builder.format == 'latex':
+        source[0] = source[0].replace('](../../puml/svg/', '](_static/')
