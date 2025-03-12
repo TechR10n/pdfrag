@@ -46,7 +46,7 @@ def run_pipeline(pdf_dir: str, rebuild_index: bool = False):
     logger.info(f"Generated embeddings for {len(chunks_with_embeddings)} chunks")
     
     # Step 4: Set up vector database
-    logger.info("Step 4: Setting up vector database")
+    logger.info(f"Step 4: Setting up vector database at {VECTOR_DB_HOST}:{VECTOR_DB_PORT}")
     vector_db = setup_vector_db(VECTOR_DB_HOST, VECTOR_DB_PORT, COLLECTION_NAME, VECTOR_DIMENSION)
     
     # Delete collection if rebuilding index

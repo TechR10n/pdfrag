@@ -1,6 +1,11 @@
 import os
 import dotenv
 from pathlib import Path
+import logging
+import socket
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -9,15 +14,19 @@ dotenv.load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Vector database settings
-VECTOR_DB_HOST = os.environ.get("VECTOR_DB_HOST", "localhost")  # Use localhost when running outside Docker
-VECTOR_DB_PORT = 6333
+# Get VECTOR_DB_HOST from environment with appropriate default
+# When running in Docker, set VECTOR_DB_HOST=vector-db in .env
+# When running locally, set VECTOR_DB_HOST=localhost in .env
+VECTOR_DB_HOST = os.environ.get("VECTOR_DB_HOST", "localhost")
+logger.info(f"VECTOR_DB_HOST set to: {VECTOR_DB_HOST}")
+VECTOR_DB_PORT = int(os.environ.get("VECTOR_DB_PORT", "6333"))
 VECTOR_DIMENSION = 384  # For all-MiniLM-L6-v2
-COLLECTION_NAME = "pdf_chunks"
+COLLECTION_NAME = os.environ.get("COLLECTION_NAME", "pdf_chunks")
 
 # Document processing
-CHUNK_SIZE = 500
-CHUNK_OVERLAP = 50
-MAX_CHUNKS_PER_DOC = 1000
+CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", "500"))
+CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", "50"))
+MAX_CHUNKS_PER_DOC = int(os.environ.get("MAX_CHUNKS_PER_DOC", "1000"))
 
 # Hugging Face settings
 HF_TOKEN = os.getenv("HF_TOKEN", "")

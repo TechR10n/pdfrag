@@ -130,7 +130,7 @@ models/llm/
 .DS_Store
 
 # MLflow specific
-mlruns/
+mlruns/**
 mlflow/
 mlartifacts/
 outputs/
