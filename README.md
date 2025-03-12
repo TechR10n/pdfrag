@@ -42,7 +42,7 @@ You can view all available options with:
    ```
 5. Download the required models:
    ```bash
-   python -m app.download_models
+   python3 -m app.download_models
    ```
 6. Build and start the Docker containers:
    ```bash
@@ -110,7 +110,7 @@ The project includes a comprehensive test suite using pytest. To run the tests:
 
 1. Install development dependencies:
    ```bash
-   pip install -r requirements-dev.txt
+   pip3 install -r requirements-dev.txt
    ```
 
 2. Run all tests using the test runner script:
@@ -171,7 +171,7 @@ If you encounter issues with the model server:
 For more detailed diagnostics of vector database connection issues, you can use the included diagnostic script:
 
 ```bash
-python check_vector_db.py
+python3 check_vector_db.py
 ```
 
 This script performs comprehensive checks including:

@@ -160,12 +160,12 @@ else
   read -r answer
   if [[ "$answer" =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}Indexing sample documents...${NC}"
-    VECTOR_DB_HOST=localhost python -m app.pipeline --pdf-dir ./data/documents --rebuild
+    VECTOR_DB_HOST=localhost python3 -m app.pipeline --pdf-dir ./data/documents --rebuild
     echo -e "${GREEN}Sample documents indexed.${NC}"
   else
     echo -e "${YELLOW}Skipping document indexing.${NC}"
     echo -e "${YELLOW}You can index documents later with:${NC}"
-    echo -e "${YELLOW}VECTOR_DB_HOST=localhost python -m app.pipeline --pdf-dir ./data/documents --rebuild${NC}"
+    echo -e "${YELLOW}VECTOR_DB_HOST=localhost python3 -m app.pipeline --pdf-dir ./data/documents --rebuild${NC}"
   fi
 fi
 

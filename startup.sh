@@ -157,7 +157,7 @@ fi
 # Rebuild index if requested or if we reset the database
 if [ "$REBUILD_INDEX" = true ]; then
   echo -e "${YELLOW}Rebuilding vector index...${NC}"
-  VECTOR_DB_HOST=localhost python -m app.pipeline --pdf-dir ./data/documents --rebuild
+  VECTOR_DB_HOST=localhost python3 -m app.pipeline --pdf-dir ./data/documents --rebuild
   echo -e "${GREEN}Vector index rebuilt.${NC}"
 fi
 
