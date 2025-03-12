@@ -16,28 +16,73 @@ PDFrag is a system for retrieving information from PDF documents using a Retriev
    cd pdfrag
    ```
 
-2. Create a `.env` file from the example:
+2. Run the setup script (for Ubuntu):
    ```bash
-   cp .env.example .env
+   ./setup_ubuntu.sh
+   ```
+   
+   This script will:
+   - Install all required dependencies (Docker, Docker Compose, etc.)
+   - Create necessary directories
+   - Set up the environment file
+   - Download required models
+   - Initialize the vector database
+   - Build and start all containers
+   - Optionally index sample documents
+
+   For other operating systems, follow these manual steps:
+   
+   a. Create a `.env` file from the example:
+      ```bash
+      cp .env.example .env
+      ```
+
+   b. Edit the `.env` file and add your Hugging Face token:
+      ```
+      HF_TOKEN=your_huggingface_token_here
+      ```
+
+   c. Download the required models:
+      ```bash
+      ./download_models.sh
+      ```
+
+   d. Build and start the Docker containers:
+      ```bash
+      docker-compose up -d --build
+      ```
+
+## Starting the Application
+
+Use the startup script to start the application:
+
+```bash
+./startup.sh
+```
+
+This script will:
+- Start all Docker containers
+- Ensure the vector database directory exists
+- Wait for services to be healthy
+- Provide access to the web interface
+
+### Vector Database Management
+
+The startup script includes options for vector database management:
+
+1. **Reset the vector database** (clears all indexed documents):
+   ```bash
+   ./startup.sh --reset-vector-db
    ```
 
-3. Edit the `.env` file and add your Hugging Face token:
-   ```
-   HF_TOKEN=your_huggingface_token_here
+2. **Reset and rebuild the index**:
+   ```bash
+   ./startup.sh --reset-vector-db --rebuild-index
    ```
 
-4. Download the required models:
+3. **Just rebuild the index** (without resetting):
    ```bash
-   ./download_models.sh
-   ```
-   This will download:
-   - Llama-3.2-1B-Instruct model
-   - all-MiniLM-L6-v2 embedding model
-   - ms-marco-MiniLM-L-6-v2 reranker model
-
-5. Build and start the Docker containers:
-   ```bash
-   docker-compose up -d --build
+   ./startup.sh --rebuild-index
    ```
 
 ## Usage
@@ -109,6 +154,20 @@ If you encounter issues with the model server:
    ```bash
    docker-compose restart
    ```
+
+### Common Vector Database Issues
+
+1. **"Temporary failure in name resolution" error**:
+   - If running outside Docker, ensure `VECTOR_DB_HOST=localhost` in your `.env` file
+   - If running inside Docker, ensure `VECTOR_DB_HOST=vector-db` in your `.env` file
+
+2. **"Connection refused" error**:
+   - Ensure the vector-db container is running: `docker-compose ps`
+   - Check the vector-db logs: `docker-compose logs vector-db`
+   - Try resetting the vector database: `./startup.sh --reset-vector-db`
+
+3. **Corrupted vector database**:
+   - If you see errors about missing shards or corrupted data in the logs, use `./startup.sh --reset-vector-db`
 
 ## Architecture
 

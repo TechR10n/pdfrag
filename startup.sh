@@ -1,7 +1,7 @@
 #!/bin/bash
+# startup.sh - Script to start the application with optional vector database reset
 
-# Exit on error
-set -e
+set -e  # Exit immediately if a command exits with a non-zero status
 
 # Configuration
 PROJECT_ROOT=$(pwd)
@@ -15,107 +15,127 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}Starting Local RAG System...${NC}"
+# Parse command line arguments
+RESET_VECTOR_DB=false
+REBUILD_INDEX=false
 
-# Check for virtual environment
-if [ ! -d "$VENV_DIR" ]; then
-    echo -e "${YELLOW}Virtual environment not found. Creating...${NC}"
-    python3 -m venv venv
+for arg in "$@"; do
+  case $arg in
+    --reset-vector-db)
+      RESET_VECTOR_DB=true
+      shift
+      ;;
+    --rebuild-index)
+      REBUILD_INDEX=true
+      shift
+      ;;
+    *)
+      # Unknown option
+      ;;
+  esac
+done
+
+echo -e "${YELLOW}Starting PDFrag...${NC}"
+
+# Check if Docker is running
+if ! docker info > /dev/null 2>&1; then
+  echo -e "${RED}Error: Docker is not running. Please start Docker first.${NC}"
+  exit 1
 fi
 
-# Activate virtual environment
-echo "Activating virtual environment..."
-source venv/bin/activate
+# Check if vector database directory exists
+if [ ! -d "./data/vectors" ]; then
+  echo -e "${YELLOW}Vector database directory not found. Creating it...${NC}"
+  mkdir -p ./data/vectors
+  chmod 777 ./data/vectors
+  echo -e "${GREEN}Vector database directory created.${NC}"
+fi
 
-# Check for requirements
-if [ ! -f "requirements.txt" ]; then
-    echo -e "${RED}Error: requirements.txt not found.${NC}"
+# Reset vector database if requested
+if [ "$RESET_VECTOR_DB" = true ]; then
+  echo -e "${YELLOW}Resetting vector database as requested...${NC}"
+  
+  # Stop the vector-db container if it's running
+  echo -e "${YELLOW}Stopping vector-db container...${NC}"
+  if docker-compose ps | grep -q vector-db; then
+    docker-compose stop vector-db
+    echo -e "${GREEN}Vector-db container stopped.${NC}"
+  else
+    echo -e "${YELLOW}Vector-db container is not running.${NC}"
+  fi
+  
+  # Remove the data directory
+  echo -e "${YELLOW}Removing vector database data...${NC}"
+  if [ -d "./data/vectors" ]; then
+    rm -rf ./data/vectors
+    echo -e "${GREEN}Vector database data removed.${NC}"
+  else
+    echo -e "${YELLOW}Vector database data directory does not exist.${NC}"
+  fi
+  
+  # Create a fresh data directory with proper permissions
+  echo -e "${YELLOW}Creating fresh data directory...${NC}"
+  mkdir -p ./data/vectors
+  chmod 777 ./data/vectors
+  echo -e "${GREEN}Fresh data directory created with proper permissions.${NC}"
+  
+  # Start the vector-db container
+  echo -e "${YELLOW}Starting vector-db container...${NC}"
+  docker-compose up -d vector-db
+  echo -e "${GREEN}Vector-db container started.${NC}"
+  
+  # Wait for the container to be healthy
+  echo -e "${YELLOW}Waiting for vector-db to be healthy...${NC}"
+  attempt=1
+  max_attempts=10
+  until [ $attempt -gt $max_attempts ] || docker-compose ps | grep -q "vector-db.*healthy"; do
+    echo -e "${YELLOW}Waiting for vector-db to be healthy (attempt $attempt/$max_attempts)...${NC}"
+    sleep 5
+    attempt=$((attempt+1))
+  done
+  
+  if [ $attempt -gt $max_attempts ]; then
+    echo -e "${RED}Vector-db did not become healthy after $max_attempts attempts.${NC}"
+    echo -e "${YELLOW}You may need to check the logs with: docker-compose logs vector-db${NC}"
+    echo -e "${RED}Startup completed with warnings.${NC}"
     exit 1
-fi
-
-# Install requirements if needed
-pip -q install -r requirements.txt
-
-# Check for models
-if [ ! -d "$MODELS_DIR/embedding" ] || [ ! -d "$MODELS_DIR/reranker" ] || [ ! -d "$MODELS_DIR/llm" ]; then
-    echo -e "${YELLOW}Some models are missing. Please download them first.${NC}"
-    echo "You can use the following commands:"
-    echo "  python app/scripts/download_models.py"
-    echo "  ./app/scripts/download_llm.sh"
-fi
-
-# Create data directories if they don't exist
-mkdir -p "$PDF_DIR"
-
-# Start Docker services (including Flask app)
-echo "Starting Docker services..."
-docker-compose up -d
-
-# Wait for services to be ready
-echo "Waiting for services to be ready..."
-sleep 5
-
-# Check if MLflow is running
-echo "Checking MLflow service..."
-if curl -s http://localhost:5001/ping > /dev/null; then
-    echo -e "${GREEN}MLflow service is running.${NC}"
-else
-    echo -e "${RED}MLflow service is not running. Check Docker logs.${NC}"
-    echo "You can run: docker-compose logs mlflow"
-fi
-
-# Check if vector database is running
-echo "Checking vector database service..."
-if curl -s http://localhost:6333/healthz > /dev/null; then
-    echo -e "${GREEN}Vector database service is running.${NC}"
-else
-    echo -e "${RED}Vector database service is not running. Check Docker logs.${NC}"
-    echo "You can run: docker-compose logs vector-db"
-fi
-
-# Check if Flask app is running
-echo "Checking Flask application..."
-if curl -s http://localhost:8001 > /dev/null; then
-    echo -e "${GREEN}Flask application is running.${NC}"
-else
-    echo -e "${RED}Flask application is not running. Check Docker logs.${NC}"
-    echo "You can run: docker-compose logs flask-app"
-fi
-
-# Check if there are PDFs to process
-PDF_COUNT=$(find "$PDF_DIR" -name "*.pdf" | wc -l)
-if [ "$PDF_COUNT" -gt 0 ]; then
-    echo -e "${GREEN}Found $PDF_COUNT PDF files.${NC}"
+  else
+    echo -e "${GREEN}Vector-db is now healthy!${NC}"
     
-    # Ask if user wants to process them
-    read -p "Do you want to process them now? (y/n) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo "Running processing pipeline..."
-        python app/pipeline.py
-    else
-        echo "Skipping processing."
-    fi
+    # Set rebuild index to true since we reset the database
+    REBUILD_INDEX=true
+  fi
 else
-    echo "No PDF files found. You can upload them through the web interface."
+  # Just start all containers if not resetting
+  echo -e "${YELLOW}Starting all containers...${NC}"
+  docker-compose up -d
+  echo -e "${GREEN}All containers started.${NC}"
+  
+  # Wait for the vector-db container to be healthy
+  echo -e "${YELLOW}Waiting for vector-db to be healthy...${NC}"
+  attempt=1
+  max_attempts=10
+  until [ $attempt -gt $max_attempts ] || docker-compose ps | grep -q "vector-db.*healthy"; do
+    echo -e "${YELLOW}Waiting for vector-db to be healthy (attempt $attempt/$max_attempts)...${NC}"
+    sleep 5
+    attempt=$((attempt+1))
+  done
+  
+  if [ $attempt -gt $max_attempts ]; then
+    echo -e "${RED}Vector-db did not become healthy after $max_attempts attempts.${NC}"
+    echo -e "${YELLOW}You may need to check the logs with: docker-compose logs vector-db${NC}"
+    echo -e "${RED}Startup completed with warnings.${NC}"
+  else
+    echo -e "${GREEN}Vector-db is now healthy!${NC}"
+  fi
 fi
 
-# Deploy the model to MLflow
-echo "Deploying model to MLflow..."
-# First, check if model exists
-if mlflow models search -f "name = 'rag_model'" | grep -q "rag_model"; then
-    echo "Model already exists, deploying latest version..."
-    python app/scripts/deploy_model.py &
-else
-    echo "Model not found, logging new model..."
-    python app/scripts/log_model.py
-    python app/scripts/deploy_model.py &
+# Rebuild index if requested or if we reset the database
+if [ "$REBUILD_INDEX" = true ]; then
+  echo -e "${YELLOW}Rebuilding vector index...${NC}"
+  VECTOR_DB_HOST=localhost python -m app.pipeline --pdf-dir ./data/documents --rebuild
+  echo -e "${GREEN}Vector index rebuilt.${NC}"
 fi
 
-echo -e "${GREEN}All services started!${NC}"
-echo "You can access the web interface at: http://localhost:8001"
-echo -e "${YELLOW}Press Ctrl+C to stop all services${NC}"
-
-# Wait for user interrupt
-trap "echo 'Stopping services...'; docker-compose down; exit 0" INT
-wait
+echo -e "${GREEN}Startup completed successfully!${NC}"
+echo -e "${YELLOW}You can access the web interface at http://localhost:8001${NC}"
