@@ -1,3 +1,11 @@
+"""
+A script for processing PDF files in a directory, extracting metadata and text, and organizing the results into a pandas DataFrame.
+
+This script scans a specified directory for PDF files, collects metadata such as file path, size, page count, and last modified time,
+extracts the text from each PDF, and stores all the information in a pandas DataFrame for further analysis. It uses PyMuPDF for PDF operations,
+pandas for data handling, and tqdm for progress tracking.
+"""
+
 import os
 import pandas as pd
 from pathlib import Path
@@ -12,13 +20,32 @@ logger = logging.getLogger(__name__)
 
 def scan_directory(directory_path: str) -> List[Dict[str, Any]]:
     """
-    Scan a directory for PDF files.
-    
-    Args:
-        directory_path: Path to the directory containing PDF files
-        
+    Scan a directory for PDF files and collect their metadata.
+
+    This function recursively searches the given directory for PDF files and gathers
+    basic file information along with PDF-specific metadata using PyMuPDF.
+
+    Parameters:
+    directory_path (str): Path to the directory containing PDF files.
+
     Returns:
-        List of dictionaries with PDF file information
+    List[Dict[str, Any]]: A list of dictionaries, each containing information about a PDF file.
+        Each dictionary has the following keys:
+        - 'path': Full path to the PDF file.
+        - 'filename': Name of the PDF file.
+        - 'parent_dir': Path to the parent directory of the PDF file.
+        - 'size_bytes': Size of the file in bytes.
+        - 'last_modified': Last modification time of the file (Unix timestamp).
+        - 'page_count': Number of pages in the PDF (0 if unable to read).
+        - 'metadata': Dictionary of PDF metadata (empty if unable to read).
+
+    Raises:
+    None: The function handles exceptions internally and logs errors.
+
+    Example:
+    >>> pdf_files = scan_directory('/path/to/directory')
+    >>> print(pdf_files[0]['filename'])
+    some_file.pdf
     """
     logger.info(f"Scanning directory: {directory_path}")
     pdf_files = []
@@ -53,25 +80,44 @@ def scan_directory(directory_path: str) -> List[Dict[str, Any]]:
 
 def create_pdf_dataframe(pdf_files: List[Dict[str, Any]]) -> pd.DataFrame:
     """
-    Create a DataFrame from PDF file information.
-    
-    Args:
-        pdf_files: List of dictionaries with PDF file information
-        
+    Create a pandas DataFrame from a list of PDF file information.
+
+    This function takes a list of dictionaries containing PDF file information and
+    converts it into a pandas DataFrame for easy data manipulation and analysis.
+
+    Parameters:
+    pdf_files (List[Dict[str, Any]]): List of dictionaries with PDF file information.
+
     Returns:
-        DataFrame with PDF file information
+    pd.DataFrame: A DataFrame where each row represents a PDF file and columns correspond to the dictionary keys.
+
+    Example:
+    >>> pdf_files = [{'path': '/path/to/file.pdf', 'filename': 'file.pdf', ...}]
+    >>> df = create_pdf_dataframe(pdf_files)
+    >>> print(df.head())
     """
     return pd.DataFrame(pdf_files)
 
 def extract_text_from_pdf(pdf_path: str) -> str:
     """
     Extract text from a PDF file.
-    
-    Args:
-        pdf_path: Path to the PDF file
-        
+
+    This function opens a PDF file using PyMuPDF and extracts its text, preserving some structure
+    by using text blocks (e.g., paragraphs). It joins the blocks with newlines and adds double newlines
+    between pages for readability.
+
+    Parameters:
+    pdf_path (str): Path to the PDF file.
+
     Returns:
-        Extracted text
+    str: The extracted text from the PDF. If extraction fails, an empty string is returned.
+
+    Raises:
+    None: The function handles exceptions internally and logs errors.
+
+    Example:
+    >>> text = extract_text_from_pdf('/path/to/file.pdf')
+    >>> print(text[:100])  # Print first 100 characters
     """
     logger.info(f"Extracting text from: {pdf_path}")
     
@@ -92,13 +138,24 @@ def extract_text_from_pdf(pdf_path: str) -> str:
 
 def process_pdfs(directory_path: str) -> pd.DataFrame:
     """
-    Process all PDFs in a directory.
-    
-    Args:
-        directory_path: Path to the directory containing PDF files
-        
+    Process all PDFs in a directory by scanning, creating a DataFrame, and extracting text.
+
+    This function orchestrates the PDF processing pipeline:
+    1. Scans the directory for PDF files.
+    2. Creates a DataFrame from the PDF file information.
+    3. Extracts text from each PDF and adds it to the DataFrame.
+    4. Logs statistics about the extracted text lengths.
+    5. Logs a warning if any PDFs have no extractable text.
+
+    Parameters:
+    directory_path (str): Path to the directory containing PDF files.
+
     Returns:
-        DataFrame with PDF information and extracted text
+    pd.DataFrame: A DataFrame with PDF information and extracted text.
+
+    Example:
+    >>> df = process_pdfs('/path/to/directory')
+    >>> print(df.head())
     """
     # Scan directory for PDFs
     pdf_files = scan_directory(directory_path)
@@ -122,7 +179,6 @@ def process_pdfs(directory_path: str) -> pd.DataFrame:
     return df
 
 if __name__ == "__main__":
-    # Example usage
     import sys
     from pathlib import Path
     

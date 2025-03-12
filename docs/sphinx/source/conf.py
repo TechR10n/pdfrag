@@ -230,3 +230,11 @@ def setup(app):
 def process_markdown_images(app, docname, source):
     if app.builder.format == 'latex':
         source[0] = source[0].replace('](../../puml/svg/', '](_static/')
+
+# Fix image paths for markdown in LaTeX output
+def setup(app):
+    app.connect('source-read', process_markdown_images)
+
+def process_markdown_images(app, docname, source):
+    if app.builder.format == 'latex':
+        source[0] = source[0].replace('](../../puml/svg/', '](_static/')

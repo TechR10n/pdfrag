@@ -62,6 +62,32 @@ The system provides a REST API for programmatic access:
   curl http://localhost:8000/api/health
   ```
 
+## Testing
+
+The project includes a comprehensive test suite using pytest. To run the tests:
+
+1. Install development dependencies:
+   ```bash
+   pip install -r requirements-dev.txt
+   ```
+
+2. Run all tests using the test runner script:
+   ```bash
+   ./run_tests.py
+   ```
+
+3. Run tests with coverage report:
+   ```bash
+   ./run_tests.py --coverage
+   ```
+
+4. Run specific test files:
+   ```bash
+   ./run_tests.py --test-file app/tests/test_pdf_ingestion.py
+   ```
+
+For more information about testing, see the [Testing Guide](app/tests/README.md).
+
 ## Troubleshooting
 
 If you encounter issues with the model server:
