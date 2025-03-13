@@ -41,13 +41,19 @@ You can view all available options with:
    mkdir -p data/documents data/vectors models
    chmod 777 data/documents data/vectors models
    ```
-5. Download the required models (use either `python` or `python3` depending on your system):
+5. Install required Python dependencies:
+   ```bash
+   pip install -r requirements.txt
+   # OR
+   pip3 install -r requirements.txt
+   ```
+6. Download the required models (use either `python` or `python3` depending on your system):
    ```bash
    python -m app.download_models
    # OR
    python3 -m app.download_models
    ```
-6. Build and start the Docker containers:
+7. Build and start the Docker containers:
    ```bash
    docker-compose up -d
    ```
@@ -136,6 +142,26 @@ The project includes a comprehensive test suite using pytest. To run the tests:
 For more information about testing, see the [Testing Guide](app/tests/README.md).
 
 ## Troubleshooting
+
+### Missing Python Dependencies
+
+If you encounter errors about missing Python modules (like `ModuleNotFoundError: No module named 'pandas'`), install the required dependencies:
+
+```bash
+pip install -r requirements.txt
+# OR
+pip3 install -r requirements.txt
+```
+
+If the requirements.txt file is not available, install the common dependencies:
+
+```bash
+pip install pandas numpy scikit-learn torch transformers qdrant-client
+# OR
+pip3 install pandas numpy scikit-learn torch transformers qdrant-client
+```
+
+The setup and startup scripts will attempt to install these dependencies automatically if they're missing.
 
 If you encounter issues with the model server:
 

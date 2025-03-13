@@ -138,6 +138,16 @@ else
     echo -e "${GREEN}Models already downloaded.${NC}"
 fi
 
+# Install Python dependencies
+echo -e "${YELLOW}Installing Python dependencies...${NC}"
+if [ -f "requirements.txt" ]; then
+    $PYTHON_CMD -m pip install -r requirements.txt
+    echo -e "${GREEN}Python dependencies installed.${NC}"
+else
+    echo -e "${RED}Warning: requirements.txt not found. You'll need to install dependencies manually.${NC}"
+    echo -e "${YELLOW}Try: pip install pandas numpy scikit-learn torch transformers qdrant-client${NC}"
+fi
+
 # Initialize vector database
 echo -e "${YELLOW}Initializing vector database...${NC}"
 mkdir -p ./data/vectors

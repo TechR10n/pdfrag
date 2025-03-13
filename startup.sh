@@ -169,6 +169,20 @@ fi
 # Rebuild index if requested or if we reset the database
 if [ "$REBUILD_INDEX" = true ]; then
   echo -e "${YELLOW}Rebuilding vector index...${NC}"
+  
+  # Check if pandas is installed
+  if ! $PYTHON_CMD -c "import pandas" &> /dev/null; then
+    echo -e "${YELLOW}Required Python dependencies not found. Installing...${NC}"
+    if [ -f "requirements.txt" ]; then
+      $PYTHON_CMD -m pip install -r requirements.txt
+      echo -e "${GREEN}Dependencies installed.${NC}"
+    else
+      echo -e "${YELLOW}requirements.txt not found. Installing common dependencies...${NC}"
+      $PYTHON_CMD -m pip install pandas numpy scikit-learn torch transformers qdrant-client
+      echo -e "${GREEN}Common dependencies installed.${NC}"
+    fi
+  fi
+  
   VECTOR_DB_HOST=localhost $PYTHON_CMD -m app.pipeline --pdf-dir ./data/documents --rebuild
   echo -e "${GREEN}Vector index rebuilt.${NC}"
 fi
